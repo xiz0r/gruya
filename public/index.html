@@ -33,20 +33,19 @@
     <script type="text/javascript" src="assets/js/jPlayer/jquery.jplayer.min.js"></script>
 
     <script type="text/javascript">
-        
-        $(document).ready(function() {
-            $(".collapse").collapse();
+        var song;
 
-            /*JPLAYER*/
+        $(document).ready(function() {
+            $(".collapse").collapse(); //bootstrap
+
             $("#jquery_jplayer_1").jPlayer({
                 ready: function() {
                     $(this).jPlayer("setMedia", {
-                        m4a: "http://la_ruta_de_tu_archivo.mp3",
-                        oga: "http://la_ruta_de_tu_archivo.ogg"
+                        mp3: ""
                     });
                 },
-                swfPath: "js",
-                supplied: "m4a, oga"
+                swfPath: "assets/js/jPlayer",
+                supplied: "mp3"
             });
 
             $('#txtSearch').bind('keypress', function(e) {
@@ -58,12 +57,7 @@
             $("#icoSearch").click(function() {
                 Search();
             });
-
-            $("#btnPlay").click(function() {
-
-            });
         });
-
 
         function Search() {
             var textSearch = $("#txtSearch").val(); //Texto a buscar
@@ -85,6 +79,38 @@
                     $(row).insertAfter("#lista tr:last");
                 });
             });
+
+            $("#btnPlay").live('click', function() {
+                //Obtenemos la uri para el audio selecionado
+                var uriSelectedSong = $(this).closest('tr').find('td:last').html();
+                //Quitamos el punto basura que le deje al playlist
+                uriSelectedSong = uriSelectedSong.substring(1, uriSelectedSong.length);
+
+                var uri = "http://localhost:8082" + uriSelectedSong;
+
+                /*Dale GASSS !!!!*/
+                $("#jquery_jplayer_1").jPlayer("destroy");
+                $("#jquery_jplayer_1").jPlayer({
+                    ready: function() {
+                        $(this).jPlayer("setMedia", {
+                            mp3: uri
+                        }).jPlayer("play");
+                    },
+                    ended: function(event) {
+                        $(this).jPlayer("play");
+                    },
+                    swfPath: "assets/js/jPlayer",
+                    supplied: "mp3"
+                });
+
+                // Mostramos el nombre de la cancion con un poco de color !!
+                var nameSplit = uriSelectedSong.split("/");
+                var name = nameSplit[nameSplit.length - 1];
+                $("#playerName").text(name);
+                $("#playerName").fadeOut("slow", function() {
+                    $("#playerName").fadeIn("slow");
+                });
+            });
         }
     </script>
     
@@ -104,12 +130,10 @@
           <div class="nav-collapse">
             <ul class="nav">
               <li class="navbar-form pull-left">    
-                
                   <span class="add-on" id="icoSearch">
                   <i class="icon-search"></i>
                   </span>
                     <input id="txtSearch" type="text" class="input-xlarge search-query" placeholder="Search" />
-                
               </li>
             </ul>
           </div><!--/.nav-collapse -->
@@ -124,8 +148,6 @@
         <a class="close" data-dismiss="alert" href="#">×</a>
         <b>Bienvendio a Gruya!</b>
       </div>
-    
-
       <table id="lista" class="table table-bordered centrar_tabla">
         <thead>
           <tr>
@@ -143,7 +165,6 @@
           </tr> -->
         </tbody>
       </table>
-
    </div>
     <!-- FIN CONTAINER -->
 
@@ -180,7 +201,7 @@
         </div>
         <div class="jp-title">
           <ul>
-            <li>El texto que quieras poner como referencia al audio</li>
+            <li id="playerName"></li>
           </ul>
         </div>
       </div>
