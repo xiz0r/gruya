@@ -1,0 +1,133 @@
+!!! 5
+html(lang='en')
+head
+    meta(charset='utf-8')
+    title Gruya
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+    meta(name='description', content='')
+    meta(name='author', content='')
+    link(href='assets/css/bootstrap.css', rel='stylesheet')
+    style(type='text/css')
+      body {
+      padding-top: 60px;
+      padding-bottom: 40px;
+      }
+    link(href='assets/css/bootstrap-responsive.css', rel='stylesheet')
+    link(href='assets/css/gruya.css', rel='stylesheet')
+    link(href='assets/css/jplayer/jplayer.blue.monday.css', rel='stylesheet')
+    //Le HTML5 shim, for IE6-8 support of HTML5 elements 
+    //if lt IE 9
+      script(src='http://html5shim.googlecode.com/svn/trunk/html5.js')
+    link(rel='shortcut icon', href='assets/ico/favicon.ico')
+    link(rel='apple-touch-icon-precomposed', sizes='144x144', href='assets/ico/apple-touch-icon-144-precomposed.png')
+    link(rel='apple-touch-icon-precomposed', sizes='114x114', href='assets/ico/apple-touch-icon-114-precomposed.png')
+    link(rel='apple-touch-icon-precomposed', sizes='72x72', href='assets/ico/apple-touch-icon-72-precomposed.png')
+    link(rel='apple-touch-icon-precomposed', href='assets/ico/apple-touch-icon-57-precomposed.png')
+    script(type='text/javascript', src='http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js')
+    script(type='text/javascript', src='assets/js/jPlayer/jquery.jplayer.min.js')
+    script(type='text/javascript')
+      $(document).ready(function(){
+      $(".collapse").collapse();
+      /*JPLAYER*/
+      $("#jquery_jplayer_1").jPlayer({
+      ready: function () {
+      $(this).jPlayer("setMedia", {
+      m4a: "http://la_ruta_de_tu_archivo.mp3",
+      oga: "http://la_ruta_de_tu_archivo.ogg"
+      });
+      },
+      swfPath: "js",
+      supplied: "m4a, oga"
+      });
+      });
+  body
+    // BARRA NAVEGACION
+    .navbar.navbar-fixed-top
+      .navbar-inner
+        .container
+          a.btn.btn-navbar(data-toggle='collapse', data-target='.nav-collapse')
+            span.icon-bar
+            span.icon-bar
+            span.icon-bar
+          a.brand(href='#') Gruya
+          .nav-collapse
+            ul.nav
+              li
+                form.navbar-form.pull-left
+                  span.add-on
+                    i.icon-search
+                  input.input-xlarge.search-query(type='text', placeholder='Search')
+          // /.nav-collapse 
+    // FIN BARRA NAVEGACION
+    // CONTAINER 
+    .container
+      .alert.alert-info
+        a.close(data-dismiss='alert', href='#') ×
+        b Bienvendio a Gruya!
+      table.table.table-bordered.centrar_tabla
+        thead
+          tr
+            th #
+            th Nombre
+            th Artista
+        tbody
+          tr
+            td
+              a.playy.rowOptionn(title='Reproducir')
+            td R U Mine
+            td Arctic Monkeys
+    // FIN CONTAINER 
+    // REPRODUCTOR 
+    footer.container.navbar.navbar-fixed-top
+      #jquery_jplayer_1.jp-jplayer.navbar-fixed-bottom
+      #jp_container_1.jp-audio.navbar-fixed-bottom
+        .jp-type-single
+          .jp-gui.jp-interface
+            ul.jp-controls
+              li
+                a.jp-play(href='javascript:;', tabindex='1') play
+              li
+                a.jp-pause(href='javascript:;', tabindex='1') pause
+              li
+                a.jp-stop(href='javascript:;', tabindex='1') stop
+              li
+                a.jp-mute(href='javascript:;', tabindex='1', title='mute') mute
+              li
+                a.jp-unmute(href='javascript:;', tabindex='1', title='unmute') unmute
+              li
+                a.jp-volume-max(href='javascript:;', tabindex='1', title='max volume') max volume
+            .jp-progress
+              .jp-seek-bar
+                .jp-play-bar
+            .jp-volume-bar
+              .jp-volume-bar-value
+            .jp-time-holder
+              .jp-current-time
+              .jp-duration
+              ul.jp-toggles
+                li
+                  a.jp-repeat(href='javascript:;', tabindex='1', title='repeat') repeat
+                li
+                  a.jp-repeat-off(href='javascript:;', tabindex='1', title='repeat off') repeat off
+          .jp-title
+            ul
+              li El texto que quieras poner como referencia al audio
+    // /container 
+    // FIN REPRODUCTOR 
+    //<p>&copy; Gruya 2012</p>
+    //Script javascript
+    //================================================== 
+    //Se agregan al final de la pagina para que se carge mas rapido... 
+    //<script src="assets/js/jquery.js"></script>
+    script(src='assets/js/bootstrap-transition.js')
+    script(src='assets/js/bootstrap-alert.js')
+    script(src='assets/js/bootstrap-modal.js')
+    script(src='assets/js/bootstrap-dropdown.js')
+    script(src='assets/js/bootstrap-scrollspy.js')
+    script(src='assets/js/bootstrap-tab.js')
+    script(src='assets/js/bootstrap-tooltip.js')
+    script(src='assets/js/bootstrap-popover.js')
+    script(src='assets/js/bootstrap-button.js')
+    script(src='assets/js/bootstrap-collapse.js')
+    script(src='assets/js/bootstrap-carousel.js')
+    script(src='assets/js/bootstrap-typeahead.js')

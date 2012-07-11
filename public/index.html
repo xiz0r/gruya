@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Gruya</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <link href="assets/css/bootstrap.css" rel="stylesheet">
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+    </style>
+    <link href="assets/css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="assets/css/gruya.css" rel="stylesheet">
+    <link href="assets/css/jplayer/jplayer.blue.monday.css" rel="stylesheet" />
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="shortcut icon" href="assets/ico/favicon.ico">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="assets/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="assets/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="assets/ico/apple-touch-icon-57-precomposed.png">
+
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="assets/js/jPlayer/jquery.jplayer.min.js"></script>
+
+    <script type="text/javascript">
+        
+        $(document).ready(function() {
+            $(".collapse").collapse();
+
+            /*JPLAYER*/
+            $("#jquery_jplayer_1").jPlayer({
+                ready: function() {
+                    $(this).jPlayer("setMedia", {
+                        m4a: "http://la_ruta_de_tu_archivo.mp3",
+                        oga: "http://la_ruta_de_tu_archivo.ogg"
+                    });
+                },
+                swfPath: "js",
+                supplied: "m4a, oga"
+            });
+
+            $('#txtSearch').bind('keypress', function(e) {
+                if(e.keyCode == 13) {
+                    Search();
+                }
+            });
+
+            $("#icoSearch").click(function() {
+                Search();
+            });
+
+            $("#btnPlay").click(function() {
+
+            });
+        });
+
+
+        function Search() {
+            var textSearch = $("#txtSearch").val(); //Texto a buscar
+
+            $.getJSON("/search/" + textSearch, function(data) {
+
+                //limpiamos la tabla
+                $("#lista").find("tr:gt(0)").remove();
+
+                $.each(data, function(key, value) {
+                    var uri = data[key].uri.split("/");
+
+                    //Obtenemos el nombre del archivo y el album
+                    var nameSong = uri[uri.length - 1];
+                    var artist = uri[uri.length - 2];
+
+                    //Generamos la propia row!
+                    var row = "<tr><td><a id='btnPlay' href=#><img src='assets/ico/play.jpg'></a></td><td>" + nameSong + "</td><td>" + artist + "</td><td style='Display:none'>" + data[key].uri + "</td></tr>";
+                    $(row).insertAfter("#lista tr:last");
+                });
+            });
+        }
+    </script>
+    
+  </head>
+  <body>
+
+    <!-- BARRA NAVEGACION-->
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="#">Gruya</a>
+          <div class="nav-collapse">
+            <ul class="nav">
+              <li class="navbar-form pull-left">    
+                
+                  <span class="add-on" id="icoSearch">
+                  <i class="icon-search"></i>
+                  </span>
+                    <input id="txtSearch" type="text" class="input-xlarge search-query" placeholder="Search" />
+                
+              </li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+    <!-- FIN BARRA NAVEGACION-->
+    
+    <!-- CONTAINER -->
+    <div class="container">
+      <div class="alert alert-info">
+        <a class="close" data-dismiss="alert" href="#">×</a>
+        <b>Bienvendio a Gruya!</b>
+      </div>
+    
+
+      <table id="lista" class="table table-bordered centrar_tabla">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nombre</th>
+            <th>Artista</th>
+            <th style="display: none">uri</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!--<tr>
+            <td><a class="playy rowOptionn" title="Reproducir"></a></td>
+            <td>Tema1</td>
+            <td>Artista1</td>
+          </tr> -->
+        </tbody>
+      </table>
+
+   </div>
+    <!-- FIN CONTAINER -->
+
+    <!-- REPRODUCTOR -->
+    <footer class="container navbar navbar-fixed-top">
+    <div id="jquery_jplayer_1" class="jp-jplayer navbar-fixed-bottom"></div>
+    <div id="jp_container_1" class=" jp-audio navbar-fixed-bottom">
+      <div class="jp-type-single">
+        <div class="jp-gui jp-interface">
+          <ul class="jp-controls">
+            <li><a href="javascript:;" class="jp-play" tabindex="1">play</a></li>
+            <li><a href="javascript:;" class="jp-pause" tabindex="1">pause</a></li>
+            <li><a href="javascript:;" class="jp-stop" tabindex="1">stop</a></li>
+            <li><a href="javascript:;" class="jp-mute" tabindex="1" title="mute">mute</a></li>
+            <li><a href="javascript:;" class="jp-unmute" tabindex="1" title="unmute">unmute</a></li>
+            <li><a href="javascript:;" class="jp-volume-max" tabindex="1" title="max volume">max volume</a></li>
+          </ul>
+          <div class="jp-progress">
+            <div class="jp-seek-bar">
+              <div class="jp-play-bar"></div>
+            </div>
+          </div>
+          <div class="jp-volume-bar">
+            <div class="jp-volume-bar-value"></div>
+          </div>
+          <div class="jp-time-holder">
+            <div class="jp-current-time"></div>
+            <div class="jp-duration"></div>
+            <ul class="jp-toggles">
+              <li><a href="javascript:;" class="jp-repeat" tabindex="1" title="repeat">repeat</a></li>
+              <li><a href="javascript:;" class="jp-repeat-off" tabindex="1" title="repeat off">repeat off</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="jp-title">
+          <ul>
+            <li>El texto que quieras poner como referencia al audio</li>
+          </ul>
+        </div>
+      </div>
+    </div> <!-- /container -->
+      <!-- FIN REPRODUCTOR -->
+    
+    <!--<p>&copy; Gruya 2012</p>-->
+    </footer>
+    <!-- Script javascript
+    ================================================== -->
+    <!-- Se agregan al final de la pagina para que se carge mas rapido... -->
+    <!--<script src="assets/js/jquery.js"></script>-->
+    <script src="assets/js/bootstrap-transition.js"></script>
+    <script src="assets/js/bootstrap-alert.js"></script>
+    <script src="assets/js/bootstrap-modal.js"></script>
+    <script src="assets/js/bootstrap-dropdown.js"></script>
+    <script src="assets/js/bootstrap-scrollspy.js"></script>
+    <script src="assets/js/bootstrap-tab.js"></script>
+    <script src="assets/js/bootstrap-tooltip.js"></script>
+    <script src="assets/js/bootstrap-popover.js"></script>
+    <script src="assets/js/bootstrap-button.js"></script>
+    <script src="assets/js/bootstrap-collapse.js"></script>
+    <script src="assets/js/bootstrap-carousel.js"></script>
+    <script src="assets/js/bootstrap-typeahead.js"></script>
+  </body>
+</html>
