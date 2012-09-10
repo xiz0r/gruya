@@ -845,22 +845,3 @@ form.well {
   }
 
 }
-
-footer.container.navbar-fixed-top {
-top: auto;
-bottom: 0;
-width: 100%;
-}
-
-a.playy {
-    cursor: pointer;
-    display: block;
-    float: left;
-    height: 18px;
-    margin: 2px;
-    width: 18px;
-}
-
-.rowOptionn {
-    background: url("assets/ico/songRow_18px.png") repeat scroll 0 0 transparent;
-}
