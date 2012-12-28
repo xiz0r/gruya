@@ -28,7 +28,7 @@ app.configure(function() {
     //app.use(express.session({ secret: 'azure zomg' }));
     app.use(express.compiler({ src: __dirname + '/public', enable: ['less'] }));
     app.use(connect.static(__dirname + '/public'));
-    //app.use(connect.static('./../../Musica')); //Ruta de archivos mp3
+    app.use(connect.static('/storage/Musica')); //Ruta de archivos mp3
     app.use(app.router);
     app.set('view options', { layout: false});
 });
@@ -41,7 +41,7 @@ var event = new e();
 event.on('LoadSongs', function() {
     console.log("Actualizando musica...");
     module.exports.listSongs = [];
-    var read_stream = fs.createReadStream('./playlist_test.m3u', { encoding: 'ascii' });
+    var read_stream = fs.createReadStream('./playlist.m3u', { encoding: 'ascii' });
 
     read_stream.on("data", function(data) {
         /* 
@@ -79,5 +79,5 @@ require('./routes/search')(app);
 * INIT SERVER
 * -------------------------------------------------------------------------------------------------
 **/
-app.listen(81);
+app.listen(80);
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);

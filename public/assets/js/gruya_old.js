@@ -90,7 +90,10 @@ $("#menuBar").find("li").click(function() {
 $("#lista").on('click', "#btnAddPlaylist", function(e) {
     e.preventDefault();
     //Obtenemos la uri para el audio selecionado
-    var uriSelectedSong = $(this).closest('tr').find('td:last').html();
+    var uriSelectedSong = $(this).closest('tr').find('td:last').text();
+    
+//    alert($(this).closest('tr').find('td:last').text());
+	
     //Quitamos el punto basura que le deje al playlist
     uriSelectedSong = uriSelectedSong.substring(1, uriSelectedSong.length);
 
@@ -99,8 +102,9 @@ $("#lista").on('click', "#btnAddPlaylist", function(e) {
     var nameSong = song[song.length - 1];
 
     //var uri = "http://localhost:81" + uriSelectedSong;
-    var uri = encodeURI(uriApolo + uriSelectedSong);
-    var li = "<li class='jp-playlist-current' id=" + uri + "><a href='javascript:;' class='close jp-playlist-item-remove'>x</a><a id='playListItem' href=" + uri + " class='jp-playlist-item' tabindex='1'>" + StringRemoveExtension(nameSong) + "</a></li>";
+    
+    var uri = encodeURI( uriApolo + uriSelectedSong);
+    var li = "<li class='jp-playlist-current' id=" + uri + "><a href='javascript:;' class='close jp-playlist-item-remove'>x</a><a id='playListItem' href=" + uri + " class='jp-playlist-item' tabindex='1'>" + nameSong + "</a></li>";
     $(li).insertAfter("#ulPlayList li:last");
 
     //Agregamos la cancion al playlist
@@ -189,7 +193,7 @@ function UpdateActiveItem(index){
 function ShowTitle(uri){
     // Mostramos el nombre de la cancion con un poco de color !!
     var nameSplit = decodeURI(uri).split("/");
-    var name = StringRemoveExtension(nameSplit[nameSplit.length - 1]);
+    var name = nameSplit[nameSplit.length - 1];
     var playerName = $("#playerName");
 
     playerName.text(name);
@@ -197,12 +201,6 @@ function ShowTitle(uri){
     playerName.fadeOut("slow", function() {
         playerName.fadeIn("slow");
     });
-}
-
-function StringRemoveExtension(item){
-    var extSplit = item.split('.');
-    var ext = extSplit[extSplit.length - 1];
-    return item.replace('.' + ext, '');
 }
 
 /**************************************************************************
@@ -234,7 +232,7 @@ function Search() {
             var uri = data[key].uri.split("/");
 
             //Obtenemos el nombre del archivo y el album
-            var nameSong = StringRemoveExtension(uri[uri.length - 1]);
+            var nameSong = uri[uri.length - 1];
             var artist = uri[uri.length - 2];
 
             //Generamos la propia row!
