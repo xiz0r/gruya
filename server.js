@@ -1,8 +1,15 @@
+/**
+ * User: jgcolo, arturo
+ * Date:
+ * Time:
+ */
+
 var express = require('express'),
     less = require('less'),
     connect = require('connect'),
     fs = require('fs'),
-    e = require('events').EventEmitter;
+    e = require('events').EventEmitter,
+    reds = require('reds');
 
 /**
 * CONFIGURATION
@@ -12,7 +19,7 @@ var express = require('express'),
 /*nconf.env().file({file: 'settings.json'});*/
 
 var app = module.exports = express.createServer();
-
+var search = app.search = reds.createSearch('music');
 /**
 * CONFIGURATION
 * -------------------------------------------------------------------------------------------------
@@ -56,17 +63,29 @@ event.on('LoadSongs', function() {
     });
 
     read_stream.on("close", function(){
-	  console.log("Carga de musica finalizada. Ficheros cargados: " + module.exports.listSongs.length);
-	});
+      console.log('Indexando musica...');
+      // evento que indexa el array
+      event.emit('IndexSongs');
+    });
+});
+
+event.on('IndexSongs', function(){
+    // Indexamos la musica para hacer busquedas con reds
+    module.exports.listSongs.forEach(function(str, i){
+        if(str !== null){
+            search.index(str, i);
+        }
+    });
+    console.log("Carga de musica finalizada. Ficheros cargados: " + module.exports.listSongs.length);
 });
 
 //Hacemos la primera carga de musica
 event.emit('LoadSongs');
 
 //Lanzamos la carga de musica cada 15min
-setInterval(function(){
-	event.emit('LoadSongs');
-},900000);
+//setInterval(function(){
+//	event.emit('LoadSongs');
+//},900000);
 
 /**
 * ROUTING
@@ -79,5 +98,5 @@ require('./routes/search')(app);
 * INIT SERVER
 * -------------------------------------------------------------------------------------------------
 **/
-app.listen(80);
+app.listen(1880);
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);

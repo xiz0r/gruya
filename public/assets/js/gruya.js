@@ -1,3 +1,9 @@
+/**
+ * User: jgcolo
+ * Date:
+ * Time:
+ */
+
 var currentSearch = "";
 var myPlaylist;
 var uriApolo = window.location.protocol + "//" + window.location.host;
@@ -56,7 +62,7 @@ $(document).ready(function() {
     };
 
     jPlayerPlaylist.prototype.previous = function() {
-        var status = $(this.cssSelector.jPlayer).data("jPlayer").status;
+        //var status = $(this.cssSelector.jPlayer).data("jPlayer").status;
         var index = (this.current - 1 >= 0) ? this.current - 1 : this.playlist.length - 1;
 
         var UpdateActivedInPlaylist = this.current - 1 >= 0;
@@ -76,7 +82,10 @@ $(document).ready(function() {
     /*******************************************************************
      */
 
-$(".collapse").collapse(); //bootstrap NO ME ACUERDO PARA QUE ERA ESTO... :)
+/*
+*Bootstrap
+*/
+$('.dropdown-toggle').dropdown();
 
 //Cambiamos el foco de los botones en la barra de navegacion
 $("#menuBar").find("li").click(function() {
@@ -86,22 +95,60 @@ $("#menuBar").find("li").click(function() {
     }
 });
 
+// Selector del playlist
+var ulPlaylsit = $("#ulPlayList");
+
+// Instanciamos el localstorage
+var lsGruya = new GruyaStorage();
+
+// Si existe el playlist default lo cargamos
+var defaultPlayList = lsGruya.getAllPlayList();
+
+if(defaultPlayList.length != 0){
+    var elem = defaultPlayList[0].songs;
+    _.each(elem, function(val){
+
+        //Obtenemos el nombre del tema
+        var song = decodeURIComponent(val).split("/");
+        var nameSong = song[song.length - 1];
+
+        //Agregamos los <li>
+        var li = "<li class='jp-playlist-current' id=" + val + "><a href='javascript:;' class='close jp-playlist-item-remove'>x</a><a id='playListItem' href=" + val + " class='jp-playlist-item' tabindex='1'>" + StringRemoveExtension(nameSong) + "</a></li>";
+        $(li).insertAfter("#ulPlayList li:last");
+
+        //Agregamos los temas al playlist!
+        myPlaylist.add({
+            title: val,
+            artist: "",
+            mp3: val
+        });
+    });
+}
+
 //Agregar tema al playlist
 $("#lista").on('click', "#btnAddPlaylist", function(e) {
     e.preventDefault();
+
     //Obtenemos la uri para el audio selecionado
     var uriSelectedSong = $(this).closest('tr').find('td:last').html();
     //Quitamos el punto basura que le deje al playlist
-    uriSelectedSong = uriSelectedSong.substring(1, uriSelectedSong.length);
+    uriSelectedSong = uriSelectedSong.substring(1, uriSelectedSong.length).trim();
 
     //Obtenemos el nombre del tema
     var song = uriSelectedSong.split("/");
     var nameSong = song[song.length - 1];
 
-    //var uri = "http://localhost:81" + uriSelectedSong;
-    var uri = encodeURI(uriApolo + uriSelectedSong);
+    var encodeUriSelectedSong = encodeURI(uriSelectedSong).replace("&", "%26");
+
+    var uri = uriApolo + encodeUriSelectedSong;
     var li = "<li class='jp-playlist-current' id=" + uri + "><a href='javascript:;' class='close jp-playlist-item-remove'>x</a><a id='playListItem' href=" + uri + " class='jp-playlist-item' tabindex='1'>" + StringRemoveExtension(nameSong) + "</a></li>";
     $(li).insertAfter("#ulPlayList li:last");
+
+    //Agregamos el tema al playlist en el localstorage
+    if(lsGruya){
+        lsGruya.add("default", uri); //Por ahora solo se guardan temas en el playlist por defecto
+        lsGruya.save();
+    }
 
     //Agregamos la cancion al playlist
     myPlaylist.add({
@@ -113,29 +160,26 @@ $("#lista").on('click', "#btnAddPlaylist", function(e) {
     //Si sos el primer item del playlist arranca a sonar amista!
     if(myPlaylist.playlist.length == 1){
         myPlaylist.play(0);
-        $("#ulPlayList").find("li").addClass("active");
+        ulPlaylsit.find("li").addClass("active");
         ShowTitle(uri);
     }
+});
 
-    //Habilitamos los acciones sobre el playlist
-    $("#btnClearPlaylist").on("click", function(e){
-
-        //Limpiamos playlist
-        var countItems = $("#ulPlayList").find("li").size();
-        $("#ulPlayList").find("li").slice(2, countItems).remove();
-        myPlaylist.remove();
-    });
-
-    $("#btnSavePlaylist").on("click", function(e){
-        $('#msjModal').modal('show');
-    });
+//Habilitamos los acciones sobre el playlist
+$("#btnClearPlaylist").on("click", function(e){
+    //Limpiamos playlist
+    e.preventDefault();
+    var countItems = ulPlaylsit.find("li").size();
+    ulPlaylsit.find("li").slice(2, countItems).remove();
+    myPlaylist.remove();
+    lsGruya.removeAll(); //Borramos el localStorage
 });
 
 // Click en un item del playlist
-$("#ulPlayList").on('click', "#playListItem", function(e) {
+ulPlaylsit.on('click', "#playListItem", function(e) {
     e.preventDefault();
 
-    var li = $("#ulPlayList").find("li");
+    var li = ulPlaylsit.find("li");
     //removemos el active de los li
     li.removeClass("active");
 
@@ -155,10 +199,10 @@ $("#ulPlayList").on('click', "#playListItem", function(e) {
 });
 
 //Remove item playlist
-$("#ulPlayList").on('click', 'a.jp-playlist-item-remove', function(e){
+ulPlaylsit.on('click', 'a.jp-playlist-item-remove', function(e){
     e.preventDefault();
 
-    var index = $("#ulPlayList").find("li").index( $(this).parent() ) - 2;
+    var index = ulPlaylsit.find("li").index( $(this).parent() ) - 2;
 
     // Al playlist magico de jplayer no le esta funcionando el myPlayList.remove(index) anda a saber porq...
     // creo que no le copa, pero si se le hace clic al playlist que el autogenera (este no se esta mostrando) si borra
@@ -167,6 +211,9 @@ $("#ulPlayList").on('click', 'a.jp-playlist-item-remove', function(e){
 
     //Quitamos el item de la lista (li)
     $(this).parent().remove();
+
+    lsGruya.remove("default", index);
+    lsGruya.save();
 });
 
 function UpdateActiveItem(index){
@@ -176,11 +223,11 @@ function UpdateActiveItem(index){
     }
 
     //Obtenemos la lista de items de nuestro playlist
-    var li = $("#ulPlayList").find("li");
+    var li = ulPlaylsit.find("li");
     //Removemos el active de los li
     li.removeClass("active");
     //Activamos el item que esta sonando now!
-    var uri = $("#ulPlayList").find("li:eq("+ index +")").addClass("active").attr("id");
+    var uri = ulPlaylsit.find("li:eq("+ index +")").addClass("active").attr("id");
 
     //Mejor ni preguntar porq si le das next o previus deja el titulo display:none
     ShowTitle(uri); //TODO ahora que sobreescribimos el next y el previous se podria hacer ahi esta chanchada...
@@ -188,7 +235,7 @@ function UpdateActiveItem(index){
 
 function ShowTitle(uri){
     // Mostramos el nombre de la cancion con un poco de color !!
-    var nameSplit = decodeURI(uri).split("/");
+    var nameSplit = decodeURIComponent(uri).split("/");
     var name = StringRemoveExtension(nameSplit[nameSplit.length - 1]);
     var playerName = $("#playerName");
 
@@ -210,16 +257,17 @@ function StringRemoveExtension(item){
  **************************************************************************/
 $('#txtSearch').bind('keypress', function(e) {
     if(e.keyCode == 13) {
+        e.preventDefault();
         Search();
     }
 });
-    $("#icoSearch").click(function() {
+    $("#icoSearch").click(function(e) {
+        e.preventDefault();
         Search();
     });
 
 function Search() {
     var textSearch = $("#txtSearch").val(); //Texto a buscar
-
     if (textSearch == currentSearch || textSearch == "") {
         return;
     }
@@ -237,9 +285,13 @@ function Search() {
             var nameSong = StringRemoveExtension(uri[uri.length - 1]);
             var artist = uri[uri.length - 2];
 
+//            //Generamos la propia row!
+//            var row = "<tr><td><a id='btnAddPlaylist' class='addPlay' rel='tooltip' title='Agregar canción al Playlist' href='#'><i class='icon-plus'></i></a></td><td>"
+//                + nameSong + "</td><td>" + artist + "</td><td style='Display:none'>" + data[key].uri + "</td></tr>";
+
             //Generamos la propia row!
-            var row = "<tr><td><a id='btnAddPlaylist' class='addPlay' rel='tooltip' title='Agregar canción al Playlist' href='#'><i class='icon-plus'></i></a></td><td>"
-                + nameSong + "</td><td>" + artist + "</td><td style='Display:none'>" + data[key].uri + "</td></tr>";
+            var row = "<tr><td><a id='btnAddPlaylist' class='addPlay' rel='tooltip' title='Agregar canción al Playlist' href='#'><i class='icon-music'></i></a></td>" +
+                "<td>" + nameSong + "<p class='artist-song'>" + artist + "</p></td><td style='Display:none'>" + data[key].uri + "</td></tr>";
 
             $(row).insertAfter("#lista tr:last");
         });
