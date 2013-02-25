@@ -11,11 +11,16 @@ Array.prototype.remove = function(from, to) {
     return this.push.apply(this, rest);
 };
 
-// Entity playlist
+/**
+ * Entity playlist
+ *
+ */
+
 var playlist = (function(){
 
     // Constructor
     return function (playListKey, song) {
+        this.gruyaName = "";
         this.name = playListKey;
         this.songs = [];
         this.songs.push(song);

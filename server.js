@@ -4,12 +4,12 @@
  * Time:
  */
 
-var express = require('express'),
-    less = require('less'),
-    connect = require('connect'),
-    fs = require('fs'),
-    e = require('events').EventEmitter,
-    reds = require('reds');
+var express = require('express')
+    , less = require('less')
+    , connect = require('connect')
+    , fs = require('fs')
+    , e = require('events').EventEmitter
+    , reds = require('reds');
 
 /**
 * CONFIGURATION
@@ -48,6 +48,7 @@ var event = new e();
 event.on('LoadSongs', function() {
     console.log("Actualizando musica...");
     module.exports.listSongs = [];
+    module.exports.listSongsString = "";
     var read_stream = fs.createReadStream('./playlist.m3u', { encoding: 'ascii' });
 
     read_stream.on("data", function(data) {
@@ -55,7 +56,7 @@ event.on('LoadSongs', function() {
         * El tamaño del buffer de lectura es de 64kb.
         * Hacemos un concat por si el archivo tiene mas de 64kb.
         **/
-        module.exports.listSongs = module.exports.listSongs.concat(data.split("\n"));
+        module.exports.listSongsString = module.exports.listSongsString.concat(data);
     });
 
     read_stream.on("error", function(err) {
@@ -63,19 +64,24 @@ event.on('LoadSongs', function() {
     });
 
     read_stream.on("close", function(){
-      console.log('Indexando musica...');
-      // evento que indexa el array
+      module.exports.listSongs = module.exports.listSongsString.split("\n");
+
+      // Borramos el list de string temporal
+      module.exports.listSongsString = "";
+
+      // Evento que indexa el array
       event.emit('IndexSongs');
     });
 });
 
 event.on('IndexSongs', function(){
+
+    console.log('Indexando musica...');
     // Indexamos la musica para hacer busquedas con reds
     module.exports.listSongs.forEach(function(str, i){
-        if(str !== null){
-            search.index(str, i);
-        }
+        search.index(str, i);
     });
+
     console.log("Carga de musica finalizada. Ficheros cargados: " + module.exports.listSongs.length);
 });
 
@@ -93,7 +99,11 @@ event.emit('LoadSongs');
 **/
 require('./routes/home')(app);
 require('./routes/search')(app);
-
+/**
+ * DISTRIBUTION PLAYLIST
+ * -------------------------------------------------------------------------------------------------
+ */
+require('./server.io');
 /**
 * INIT SERVER
 * -------------------------------------------------------------------------------------------------

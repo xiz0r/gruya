@@ -1,26 +1,28 @@
 {
-  "name": "gruya",
-  "description": "musicalisimo",
-  "version": "1.0.0",
-  "author": {
-    "name": "Juan Colo",
-    "email": "juan.colo@arkanosoft.com"
-  },
-  "contributors": [
-    {
-      "name": "Juan Colo",
-      "email": "juan.colo@arkanosoft.com"
+    "name":"gruya",
+    "description":"musicalisimo",
+    "version":"1.0.0",
+    "author":{
+        "name":"Juan Colo",
+        "email":"juan.colo@arkanosoft.com"
     },
-    {
-      "name": "Gastón Telfeyan",
-      "email": "gaston.telfeyan@gmail.com"
-    }
-  ],
-  "dependencies": {
-    "connect": "1.x",
-    "less":"1.3.0",
-    "express":"2.5.11",
-    "reds":"0.2.2"
-  },
-  "main": "server"
+    "contributors":[
+        {
+            "name":"Juan Colo",
+            "email":"juan.colo@arkanosoft.com"
+        },
+        {
+            "name":"Gastón Telfeyan",
+            "email":"gaston.telfeyan@gmail.com"
+        }
+    ],
+    "dependencies":{
+        "connect":"1.x",
+        "less":"1.3.0",
+        "express":"2.5.11",
+        "reds":"0.2.2",
+        "underscore":"",
+        "socket.io":""
+    },
+    "main":"server"
 }
