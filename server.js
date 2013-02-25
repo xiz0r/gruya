@@ -12,20 +12,20 @@ var express = require('express')
     , reds = require('reds');
 
 /**
-* CONFIGURATION
-* -------------------------------------------------------------------------------------------------
-* load configuration settings from ENV, then settings.json.
-**/
+ * CONFIGURATION
+ * -------------------------------------------------------------------------------------------------
+ * load configuration settings from ENV, then settings.json.
+ **/
 /*nconf.env().file({file: 'settings.json'});*/
 
 var app = module.exports = express.createServer();
 var search = app.search = reds.createSearch('music');
 /**
-* CONFIGURATION
-* -------------------------------------------------------------------------------------------------
-* set up view engine (jade), css preprocessor (less), and any custom middleware (errorHandler)
-**/
-app.configure(function() {
+ * CONFIGURATION
+ * -------------------------------------------------------------------------------------------------
+ * set up view engine (jade), css preprocessor (less), and any custom middleware (errorHandler)
+ **/
+app.configure(function () {
     app.set('views', __dirname + '/views');
     app.set('view engine', 'jade');
     app.use(express.bodyParser());
@@ -33,53 +33,55 @@ app.configure(function() {
     //app.use(require('./middleware/locals'));
     //app.use(express.cookieParser());
     //app.use(express.session({ secret: 'azure zomg' }));
-    app.use(express.compiler({ src: __dirname + '/public', enable: ['less'] }));
+    app.use(express.compiler({ src:__dirname + '/public', enable:['less'] }));
     app.use(connect.static(__dirname + '/public'));
     app.use(connect.static('/storage/Musica')); //Ruta de archivos mp3
     app.use(app.router);
-    app.set('view options', { layout: false});
+    app.set('view options', { layout:false});
 });
 
 /**
-* READ SONGS
-* -------------------------------------------------------------------------------------------------
-**/
+ * READ SONGS
+ * -------------------------------------------------------------------------------------------------
+ **/
 var event = new e();
-event.on('LoadSongs', function() {
+event.on('LoadSongs', function () {
     console.log("Actualizando musica...");
     module.exports.listSongs = [];
     module.exports.listSongsString = "";
-    var read_stream = fs.createReadStream('./playlist.m3u', { encoding: 'ascii' });
+    var read_stream = fs.createReadStream('./playlist.m3u', { encoding:'ascii' });
 
-    read_stream.on("data", function(data) {
+    read_stream.on("data", function (data) {
         /* 
-        * El tamaño del buffer de lectura es de 64kb.
-        * Hacemos un concat por si el archivo tiene mas de 64kb.
-        **/
+         * El tamaño del buffer de lectura es de 64kb.
+         * Hacemos un concat por si el archivo tiene mas de 64kb.
+         **/
         module.exports.listSongsString = module.exports.listSongsString.concat(data);
     });
 
-    read_stream.on("error", function(err) {
+    read_stream.on("error", function (err) {
         console.error("Se rompio... :: %s", err)
     });
 
-    read_stream.on("close", function(){
-      module.exports.listSongs = module.exports.listSongsString.split("\n");
+    read_stream.on("close", function () {
+        module.exports.listSongs = module.exports.listSongsString.split("\n");
 
-      // Borramos el list de string temporal
-      module.exports.listSongsString = "";
+        // Borramos el list de string temporal
+        module.exports.listSongsString = "";
 
-      // Evento que indexa el array
-      event.emit('IndexSongs');
+        // Evento que indexa el array
+        event.emit('IndexSongs');
     });
 });
 
-event.on('IndexSongs', function(){
+event.on('IndexSongs', function () {
 
     console.log('Indexando musica...');
     // Indexamos la musica para hacer busquedas con reds
-    module.exports.listSongs.forEach(function(str, i){
-        search.index(str, i);
+    module.exports.listSongs.forEach(function (str, i) {
+        if (str.replace('\r','')) {
+            search.index(str, i);
+        }
     });
 
     console.log("Carga de musica finalizada. Ficheros cargados: " + module.exports.listSongs.length);
@@ -94,9 +96,9 @@ event.emit('LoadSongs');
 //},900000);
 
 /**
-* ROUTING
-* -------------------------------------------------------------------------------------------------
-**/
+ * ROUTING
+ * -------------------------------------------------------------------------------------------------
+ **/
 require('./routes/home')(app);
 require('./routes/search')(app);
 /**
@@ -105,8 +107,8 @@ require('./routes/search')(app);
  */
 require('./server.io');
 /**
-* INIT SERVER
-* -------------------------------------------------------------------------------------------------
-**/
+ * INIT SERVER
+ * -------------------------------------------------------------------------------------------------
+ **/
 app.listen(1880);
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
