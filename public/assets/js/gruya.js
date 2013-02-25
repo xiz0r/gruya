@@ -183,6 +183,13 @@ $(document).ready(function () {
         ulPlaylsit.find("li").slice(2, countItems).remove();
         myPlaylist.remove();
         lsGruya.removeAll(); //Borramos el localStorage
+
+        if (localStorage.gruyaName) {
+            // Notificamos el cambio en el playlist a los demas clientes
+            var newPlaylist = lsGruya.getAllPlayList();
+            newPlaylist[0].gruyaName = localStorage.gruyaName;
+            socket.emit('sendPlaylist', newPlaylist);
+        }
     });
 
     /**

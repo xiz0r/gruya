@@ -88,7 +88,7 @@ var GruyaStorage = (function(){
     };
 
     storage.prototype.removeAll = function(){
-      localStorage.clear();
+      localStorage.gruya = "";
     };
 
     /*

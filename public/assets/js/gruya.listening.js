@@ -53,7 +53,7 @@ function LoadRemotePlaylist(data) {
 
     // Iteracion mas rapida...
     for (var item = data[0], len = data.length; len; item = data[--len]) {
-        if (item.name === gruyaName)
+        if (item.name === localStorage.gruyaName)
             continue;
 
         var li = "<li><a id='btnGetRemotePlaylist' href='#'><span>" + item.name + "</span><div class='rfloat'><span class='uiSideNavCount'>" + item.countSongs + "</span></div>  </a></li><li class='divider'></li>";
@@ -75,10 +75,11 @@ $("#listaRemoteSongs").on("click", "#btnGetRemotePlaylist", function () {
 function loadRemotePlaylistToLocal(data) {
     var ulPlaylsit = $("#ulPlayList");
 
-    $("#btnClearPlaylist").click();
-    if (lsGruya) {
-        lsGruya.removeAll();
-    }
+    //Limpiamos playlist
+    var countItems = ulPlaylsit.find("li").size();
+    ulPlaylsit.find("li").slice(2, countItems).remove();
+    myPlaylist.remove();
+    lsGruya.removeAll(); //Borramos el localStorage
 
     for (var i = 0; i < data.songs.length; i++) {
 
