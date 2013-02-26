@@ -9,17 +9,19 @@ var express = require('express')
     , connect = require('connect')
     , fs = require('fs')
     , e = require('events').EventEmitter
-    , reds = require('reds');
+    , reds = require('reds')
+    , nconf = require('nconf');
 
 /**
  * CONFIGURATION
  * -------------------------------------------------------------------------------------------------
  * load configuration settings from ENV, then settings.json.
  **/
-/*nconf.env().file({file: 'settings.json'});*/
+nconf.env().file({file:'./settings.json'});
 
 var app = module.exports = express.createServer();
 var search = app.search = reds.createSearch('music');
+
 /**
  * CONFIGURATION
  * -------------------------------------------------------------------------------------------------
@@ -35,7 +37,7 @@ app.configure(function () {
     //app.use(express.session({ secret: 'azure zomg' }));
     app.use(express.compiler({ src:__dirname + '/public', enable:['less'] }));
     app.use(connect.static(__dirname + '/public'));
-    app.use(connect.static('/storage/Musica')); //Ruta de archivos mp3
+    app.use(connect.static(nconf.get('MP3_PATH'))); //Ruta de archivos mp3
     app.use(app.router);
     app.set('view options', { layout:false});
 });
@@ -49,9 +51,9 @@ event.on('LoadSongs', function () {
     console.log("Actualizando musica...");
     module.exports.listSongs = [];
     module.exports.listSongsString = "";
-    var read_stream = fs.createReadStream('./playlist.m3u', { encoding:'ascii' });
+    var readStream = fs.createReadStream(nconf.get('PLAYLIST_PATH'), { encoding:'ascii' });
 
-    read_stream.on("data", function (data) {
+    readStream.on("data", function (data) {
         /* 
          * El tamaño del buffer de lectura es de 64kb.
          * Hacemos un concat por si el archivo tiene mas de 64kb.
@@ -59,11 +61,11 @@ event.on('LoadSongs', function () {
         module.exports.listSongsString = module.exports.listSongsString.concat(data);
     });
 
-    read_stream.on("error", function (err) {
+    readStream.on("error", function (err) {
         console.error("Se rompio... :: %s", err)
     });
 
-    read_stream.on("close", function () {
+    readStream.on("close", function () {
         module.exports.listSongs = module.exports.listSongsString.split("\n");
 
         // Borramos el list de string temporal
@@ -79,7 +81,7 @@ event.on('IndexSongs', function () {
     console.log('Indexando musica...');
     // Indexamos la musica para hacer busquedas con reds
     module.exports.listSongs.forEach(function (str, i) {
-        if (str.replace('\r','')) {
+        if (str.replace('\r', '')) {
             search.index(str, i);
         }
     });
@@ -110,5 +112,5 @@ require('./server.io');
  * INIT SERVER
  * -------------------------------------------------------------------------------------------------
  **/
-app.listen(1880);
+app.listen(nconf.get('LISTEN_PORT'));
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);

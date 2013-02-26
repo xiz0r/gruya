@@ -1,7 +1,7 @@
 {
     "name":"gruya",
     "description":"musicalisimo",
-    "version":"1.0.0",
+    "version":"0.5.0",
     "author":{
         "name":"Juan Colo",
         "email":"juan.colo@arkanosoft.com"
@@ -14,6 +14,10 @@
         {
             "name":"Gastón Telfeyan",
             "email":"gaston.telfeyan@gmail.com"
+        },
+        {
+            "name":"Nicolas Stummo",
+            "email":"nstummo@gmail.com"
         }
     ],
     "dependencies":{
@@ -22,7 +26,8 @@
         "express":"2.5.11",
         "reds":"0.2.2",
         "underscore":"",
-        "socket.io":""
+        "socket.io":"",
+        "nconf": "0.6.7"
     },
     "main":"server"
 }

@@ -5,7 +5,6 @@
  */
 
 module.exports = function(app) {
-    //gruya search
     app.get('/search/:name', function(req, res) {
 
         var maxResult = 500;

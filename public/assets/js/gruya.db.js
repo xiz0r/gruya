@@ -5,7 +5,7 @@
  */
 
 // un remove de verdad...
-Array.prototype.remove = function(from, to) {
+Array.prototype.remove = function (from, to) {
     var rest = this.slice((to || from) + 1 || this.length);
     this.length = from < 0 ? this.length + from : from;
     return this.push.apply(this, rest);
@@ -16,7 +16,7 @@ Array.prototype.remove = function(from, to) {
  *
  */
 
-var playlist = (function(){
+var playlist = (function () {
 
     // Constructor
     return function (playListKey, song) {
@@ -27,96 +27,96 @@ var playlist = (function(){
     };
 })();
 
-var GruyaStorage = (function(){
+var GruyaStorage = (function () {
 
-    var storage = function(){
+    var storage = function () {
         this.storagePlaylist = [];
 
         // Si existe el storage gruya dale q es tarde!
-        if(localStorage.gruya){
+        if (localStorage.gruya) {
             this.storagePlaylist = parseLocalStorage(localStorage.gruya);
         }
     };
 
-    /*
+    /**
      *   Retorna todos los playlist
      */
-    storage.prototype.getAllPlayList = function(){
+    storage.prototype.getAllPlayList = function () {
         return this.storagePlaylist;
     };
 
-    storage.prototype.getPlayList = function(key){
+    storage.prototype.getPlayList = function (key) {
 
         return getPlayList(key, this.storagePlaylist);
     };
 
-    /*
+    /**
      *   Almacena los playlist en el localStorage
      */
-    storage.prototype.save = function(){
+    storage.prototype.save = function () {
         localStorage.gruya = serializeLocalStorage(this.storagePlaylist);
     };
 
-    /*
+    /**
      *   Agrega un tema al playlist pasado como parametro
      */
-    storage.prototype.add = function(playListKey, song){
+    storage.prototype.add = function (playListKey, song) {
         song = song.trim();
-        if(song){
+        if (song) {
             var pList = getPlayList(playListKey, this.storagePlaylist);
 
-            if(pList){
+            if (pList) {
                 pList.songs.push(song);
             }
-            else{
+            else {
                 var newPlayList = new playlist(playListKey, song);
                 this.storagePlaylist.push(newPlayList);
             }
         }
     };
 
-    /*
+    /**
      *   Borra un tema del playlist
      */
-    storage.prototype.remove = function(playListKey, index){
-        if(typeof index === "number"){
+    storage.prototype.remove = function (playListKey, index) {
+        if (typeof index === "number") {
             var pList = getPlayList(playListKey, this.storagePlaylist);
-            if(pList){
+            if (pList) {
                 pList.songs.remove(index);
             }
         }
     };
 
-    storage.prototype.removeAll = function(){
-      localStorage.gruya = "";
+    storage.prototype.removeAll = function () {
+        localStorage.gruya = "";
     };
 
-    /*
+    /**
      *   Busca un playlist por su key
      */
-    function getPlayList(name, playlist){
-       return _.findWhere(playlist, {name : name});
+    function getPlayList(name, playlist) {
+        return _.findWhere(playlist, {name:name});
     }
 
-    /*
+    /**
      *   Funcion que parsea el JSON del localStorage
      */
-    function parseLocalStorage(lstorage){
+    function parseLocalStorage(lstorage) {
         var plist = JSON.parse(lstorage);
-        _.each(plist, function(val){
+        _.each(plist, function (val) {
             val.songs = JSON.parse(val.songs);
         });
         return plist;
     }
 
-    /*
+    /**
      *   Funcion que serealiza a JSON los playlist
      */
-    function serializeLocalStorage(pList){
+    function serializeLocalStorage(pList) {
         var cp = [];
 
         // Serealizamos las lista de canciones
-        _.each(pList, function(val){
+        _.each(pList, function (val) {
             var serialPlaylist = new playlist(val.name);
             serialPlaylist.songs = JSON.stringify(val.songs);
             cp.push(serialPlaylist);

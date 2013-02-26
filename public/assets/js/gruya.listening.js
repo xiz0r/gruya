@@ -19,14 +19,14 @@ if (gruyaName && currentPlaylist.length != 0) {
  * Evento que obtiene los nombre de los playlist compartidos
  */
 socket.on('updatePlaylist', function (data) {
-    LoadRemotePlaylist(data);
+    loadRemotePlaylist(data);
 });
 
 /**
  * Evento emitido por el servidor al conectarse un cliente
  */
 socket.on('init', function (data) {
-    LoadRemotePlaylist(data);
+    loadRemotePlaylist(data);
 });
 
 /**
@@ -47,7 +47,7 @@ socket.on('newGruyaName', function (data) {
     });
 });
 
-function LoadRemotePlaylist(data) {
+function loadRemotePlaylist(data) {
     // Limpiamos la lista de playlist
     $("#listaRemoteSongs").find("li:gt(0)").remove();
 
@@ -86,7 +86,7 @@ function loadRemotePlaylistToLocal(data) {
         var uri = data.songs[i];
         var splitUri = data.songs[i].split("/");
         //Obtenemos el nombre del archivo y el album
-        var nameSong = StringRemoveExtension(splitUri[splitUri.length - 1]);
+        var nameSong = stringRemoveExtension(splitUri[splitUri.length - 1]);
 
         var li = "<li class='jp-playlist-current' id=" + uri + "><a href='javascript:;' class='close jp-playlist-item-remove'>x</a><a id='playListItem' href=" + uri + " class='jp-playlist-item' tabindex='1'>" + decodeURI(nameSong) + "</a></li>";
         $(li).insertAfter("#ulPlayList li:last");
