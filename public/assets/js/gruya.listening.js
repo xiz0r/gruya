@@ -73,13 +73,14 @@ $("#listaRemoteSongs").on("click", "#btnGetRemotePlaylist", function () {
  * Add remote playlist to local playlist
  */
 function loadRemotePlaylistToLocal(data) {
+    isMyPlaylist = false;
     var ulPlaylsit = $("#ulPlayList");
 
     //Limpiamos playlist
     var countItems = ulPlaylsit.find("li").size();
     ulPlaylsit.find("li").slice(2, countItems).remove();
     myPlaylist.remove();
-    lsGruya.removeAll(); //Borramos el localStorage
+    //lsGruya.removeAll(); //Borramos el localStorage
 
     for (var i = 0; i < data.songs.length; i++) {
 
@@ -92,10 +93,10 @@ function loadRemotePlaylistToLocal(data) {
         $(li).insertAfter("#ulPlayList li:last");
 
         //Agregamos el tema al playlist en el localstorage
-        if (lsGruya) {
-            lsGruya.add("default", uri); //Por ahora solo se guardan temas en el playlist por defecto
-            lsGruya.save();
-        }
+//        if (lsGruya) {
+//            lsGruya.add("default", uri); //Por ahora solo se guardan temas en el playlist por defecto
+//            lsGruya.save();
+//        }
 
         //Agregamos la cancion al playlist
         myPlaylist.add({

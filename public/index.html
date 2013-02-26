@@ -36,7 +36,7 @@
 
 </head>
 <body class="backgruya">
-
+<div id="loading" style="position: absolute; top: 20px; right: 0px;"></div>
 <!-- BARRA NAVEGACION-->
 <div class="navbar navbar-inverse navbar-fixed-top">
     <div class="navbar-inner">
@@ -99,8 +99,12 @@
             <div id="jp_container_2">
                 <div class="jp-playlist">
                     <ul id="ulPlayList" style="display: block" class="nav nav-list">
-                        <li class="nav-header"><p>Playlist &nbsp
-                            <a id="btnClearPlaylist" href="javascript:;">Borrar playlist</a></p>
+
+                        <li class="nav-header">
+                            <p>Playlist &nbsp
+                                <a id="btnLoadMyPlaylist" href="javascript:;">Cargar playlist</a> |
+                                <a id="btnClearPlaylist" href="javascript:;">Borrar playlist</a>
+                            </p>
                         </li>
                         <li>
                             <div class="btn-group btn-group-playlist">
@@ -219,14 +223,16 @@
 <!-- Script javascript
 ================================================== -->
 <!-- Se agregan al final de la pagina para que se carge mas rapido... -->
-<script src="http://code.jquery.com/jquery-1.8.0.min.js"></script>
-<script src="http://cdn.jsdelivr.net/jplayer/2.2.0/jquery.jplayer.min.js"></script>
-<script src="http://cdn.jsdelivr.net/jplayer/2.2.0/add-on/jplayer.playlist.min.js"></script>
-<script src="assets/js/bootstrap.js"></script>
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.8.0.min.js"></script>
+<script type="text/javascript" src="http://cdn.jsdelivr.net/jplayer/2.2.0/jquery.jplayer.min.js"></script>
+<script type="text/javascript" src="http://cdn.jsdelivr.net/jplayer/2.2.0/add-on/jplayer.playlist.min.js"></script>
+<script type="text/javascript" src="assets/js/bootstrap.js"></script>
 <script type="text/javascript" src="assets/js/underscore-min.js"></script>
 <script type="text/javascript" src="assets/js/gruya.db.js"></script>
 <script type="text/javascript" src="assets/js/gruya.js"></script>
 <script type="text/javascript" src="assets/js/socket.io/socket.io.min.js"></script>
 <script type="text/javascript" src="assets/js/gruya.listening.js"></script>
+<script type="text/javascript" src="assets/js/sonic/sonic.js"></script>
+<script type="text/javascript" src="assets/js/gruya.loading.js"></script>
 </body>
 </html>

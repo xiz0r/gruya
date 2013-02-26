@@ -7,6 +7,7 @@
 var currentSearch = "";
 var myPlaylist;
 var uriApolo = window.location.protocol + "//" + window.location.host;
+var isMyPlaylist = true;
 
 // Instanciamos el localstorage
 var lsGruya = new GruyaStorage();
@@ -103,25 +104,8 @@ $(document).ready(function () {
     // Selector del playlist
     var ulPlaylsit = $("#ulPlayList");
 
-    // Si existe el playlist default lo cargamos
-    var defaultPlayList = lsGruya.getAllPlayList();
-
-    if (defaultPlayList.length != 0) {
-        var elem = defaultPlayList[0].songs;
-        _.each(elem, function (val) {
-
-            //Obtenemos el nombre del tema
-            var song = decodeURI(val).split("/");
-            var nameSong = song[song.length - 1];
-
-            //Agregamos los li
-            var li = "<li class='jp-playlist-current' id=" + val + "><a href='javascript:;' class='close jp-playlist-item-remove'>x</a><a id='playListItem' href=" + val + " class='jp-playlist-item' tabindex='1'>" + stringRemoveExtension(nameSong) + "</a></li>";
-            $(li).insertAfter("#ulPlayList li:last");
-
-            //Agregamos los temas al playlist!
-            myPlaylist.add({ title:val, artist:"", mp3:val });
-        });
-    }
+    // Carga inicial del playlist
+    loadPlaylistFromLocalStorage();
 
     /**
      * Agregar tema al playlist
@@ -144,8 +128,9 @@ $(document).ready(function () {
         var li = "<li class='jp-playlist-current' id=" + uri + "><a href='javascript:;' class='close jp-playlist-item-remove'>x</a><a id='playListItem' href=" + uri + " class='jp-playlist-item' tabindex='1'>" + stringRemoveExtension(nameSong) + "</a></li>";
         $(li).insertAfter("#ulPlayList li:last");
 
+
         //Agregamos el tema al playlist en el localstorage
-        if (lsGruya) {
+        if (isMyPlaylist && lsGruya) {
             lsGruya.add("default", uri); //Por ahora solo se guardan temas en el playlist por defecto
             lsGruya.save();
 
@@ -177,11 +162,18 @@ $(document).ready(function () {
         // Borramos el playlist de jplayer
         myPlaylist.remove();
 
-        // Borramos el localStorage
-        lsGruya.removeAll();
+        if (isMyPlaylist) {
+            // Borramos el localStorage
+            lsGruya.removeAll();
 
-        // Notificamos el cambio en el playlist a los demas clientes
-        notifyChangeLocalPlaylist(true);
+            // Notificamos el cambio en el playlist a los demas clientes
+            notifyChangeLocalPlaylist(true);
+        }
+    });
+
+    $("#btnLoadMyPlaylist").on("click", function () {
+        isMyPlaylist = true;
+        loadPlaylistFromLocalStorage();
     });
 
     /**
@@ -225,12 +217,14 @@ $(document).ready(function () {
         //Quitamos el item de la lista (li)
         $(this).parent().remove();
 
-        // Quitamos el item del localstorage
-        lsGruya.remove("default", index);
-        lsGruya.save();
+        if (isMyPlaylist) {
+            // Quitamos el item del localstorage
+            lsGruya.remove("default", index);
+            lsGruya.save();
 
-        // Notificamos el cambio en el playlist a los demas clientes
-        notifyChangeLocalPlaylist();
+            // Notificamos el cambio en el playlist a los demas clientes
+            notifyChangeLocalPlaylist();
+        }
     });
 
     function updateActiveItem(index) {
@@ -286,6 +280,9 @@ $(document).ready(function () {
 
         // jQuery AJAX
         $.getJSON("/search/" + textSearch, function (data) {
+            // Loading
+            var node = document.getElementById("loading").appendChild(s.canvas);
+            s.play();
 
             // Limpiamos la tabla
             $("#lista").find("tr:gt(0)").remove();
@@ -303,6 +300,8 @@ $(document).ready(function () {
 
                 $(row).insertAfter("#lista tr:last");
             });
+            s.stop();
+            document.getElementById("loading").removeChild(node);
         });
 
         //Habilitamos el tooltip
@@ -376,6 +375,37 @@ function notifyChangeLocalPlaylist(isEmptyPlaylist) {
         newPlaylist[0].gruyaName = localStorage.gruyaName;
         socket.emit('sendPlaylist', newPlaylist);
     } else {
-        socket.emit('sendPlaylist', [{gruyaName:localStorage.gruyaName, songs:[] }]);
+        socket.emit('sendPlaylist', [
+            {gruyaName:localStorage.gruyaName, songs:[] }
+        ]);
+    }
+}
+
+function loadPlaylistFromLocalStorage() {
+
+    //Limpiamos playlist
+    var ulPlaylsit = $("#ulPlayList");
+    var countItems = ulPlaylsit.find("li").size();
+    ulPlaylsit.find("li").slice(2, countItems).remove();
+    myPlaylist.remove();
+
+    // Si existe el playlist default lo cargamos
+    var defaultPlayList = lsGruya.getAllPlayList();
+
+    if (defaultPlayList.length != 0) {
+        var elem = defaultPlayList[0].songs;
+        _.each(elem, function (val) {
+
+            //Obtenemos el nombre del tema
+            var song = decodeURI(val).split("/");
+            var nameSong = song[song.length - 1];
+
+            //Agregamos los li
+            var li = "<li class='jp-playlist-current' id=" + val + "><a href='javascript:;' class='close jp-playlist-item-remove'>x</a><a id='playListItem' href=" + val + " class='jp-playlist-item' tabindex='1'>" + stringRemoveExtension(nameSong) + "</a></li>";
+            $(li).insertAfter("#ulPlayList li:last");
+
+            //Agregamos los temas al playlist!
+            myPlaylist.add({ title:val, artist:"", mp3:val });
+        });
     }
 }
