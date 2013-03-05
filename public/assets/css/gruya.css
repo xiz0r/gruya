@@ -920,3 +920,11 @@ form.well {
     font-size: 12px;
 }
 .rfloat{float:right}
+
+.radio{
+    display: none;
+}
+.radio img{
+    width: 140px;
+    height: 140px;
+}

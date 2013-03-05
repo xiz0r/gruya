@@ -1,11 +1,12 @@
 /**
- * User: jgcolo
+ * User: jgcolo, nstummo
  * Date:
  * Time:
  */
 
-module.exports = function(app) {
-    app.get('/search/:name', function(req, res) {
+module.exports = function (app) {
+    //gruya search
+    app.get('/search/:name', function (req, res) {
 
         var maxResult = 500;
         var listResultJson = [];
@@ -14,17 +15,51 @@ module.exports = function(app) {
         console.log("------------------------------------");
         console.log("Query: " + nameSearch);
         console.log("------------------------------------");
-
-        app.search.query(nameSearch).end(function(err, ids){
-            ids.forEach(function(id){
-                if(maxResult > listResultJson.length) {
+        app.searchArtist.query(nameSearch).end(function (err, ids) {
+            ids.forEach(function (id) {
+                console.log("UNO ID: " + id);
+                if (maxResult > listResultJson.length) {
                     var song = app.listSongs[id].substring(0, app.listSongs[id].length);
-                    listResultJson.push({ "uri": song });
+                    listResultJson.push({ "uri":song });
                 }
             });
 
-            console.log("Resultados encontrados: " + listResultJson.length);
-            res.json(listResultJson);
+            app.searchSong.query(nameSearch).end(function (err, ids) {
+                ids.forEach(function (id) {
+                    console.log("DOS ID: " + id);
+                    if (maxResult > listResultJson.length) {
+                        var song = app.listSongs[id].substring(0, app.listSongs[id].length);
+                        listResultJson.push({ "uri":song });
+                    }
+                });
+
+                app.searchAlbum.query(nameSearch).end(function (err, ids) {
+                    ids.forEach(function (id) {
+                        console.log("DOS ID: " + id);
+                        if (maxResult > listResultJson.length) {
+                            var song = app.listSongs[id].substring(0, app.listSongs[id].length);
+                            listResultJson.push({ "uri":song });
+                        }
+                    });
+                    if (listResultJson.length > 0) {
+                        console.log("Resultados encontrados: " + listResultJson.length);
+                        res.json(listResultJson);
+                    }
+                    else {
+                        app.search.query(nameSearch).end(function (err, ids) {
+                            ids.forEach(function (id) {
+                                console.log("DOS ID: " + id);
+                                if (maxResult > listResultJson.length) {
+                                    var song = app.listSongs[id].substring(0, app.listSongs[id].length);
+                                    listResultJson.push({ "uri":song });
+                                }
+                            });
+                            console.log("Resultados encontrados: " + listResultJson.length);
+                            res.json(listResultJson);
+                        });
+                    }
+                });
+            });
         });
     });
 };

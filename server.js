@@ -10,7 +10,8 @@ var express = require('express')
     , fs = require('fs')
     , e = require('events').EventEmitter
     , reds = require('reds')
-    , nconf = require('nconf');
+    , nconf = require('nconf')
+    , mm = require('musicmetadata');
 
 /**
  * CONFIGURATION
@@ -20,7 +21,15 @@ var express = require('express')
 nconf.env().file({file:'./settings.json'});
 
 var app = module.exports = express.createServer();
+
+/**
+ * REDS
+ * -------------------------------------------------------------------------------------------------
+ **/
 var search = app.search = reds.createSearch('music');
+var searchAlbum = app.searchAlbum = reds.createSearch('albums');
+var searchArtist = app.searchArtist = reds.createSearch('artists');
+var searchSong = app.searchSong = reds.createSearch('songs');
 
 /**
  * CONFIGURATION
@@ -40,6 +49,7 @@ app.configure(function () {
     app.use(connect.static(nconf.get('MP3_PATH'))); //Ruta de archivos mp3
     app.use(app.router);
     app.set('view options', { layout:false});
+    app.use(require('stylus').middleware(__dirname + '/public'));
 });
 
 /**
@@ -81,8 +91,19 @@ event.on('IndexSongs', function () {
     console.log('Indexando musica...');
     // Indexamos la musica para hacer busquedas con reds
     module.exports.listSongs.forEach(function (str, i) {
-        if (str.replace('\r', '')) {
-            search.index(str, i);
+        if (str != '') {
+            var readStream = fs.createReadStream(str.replace('\r', ''));
+            search.index(str.replace('\r', ''), i);
+            var parser = new mm(readStream);
+            parser.on('artist', function (result) {
+                searchArtist.index(result, i);
+            });
+            parser.on('title', function (result) {
+                searchSong.index(result, i);
+            });
+            parser.on('album', function (result) {
+                searchAlbum.index(result, i);
+            });
         }
     });
 

@@ -24,7 +24,7 @@ $(document).ready(function () {
                 enableRemoveControls:true
             },
             swfPath:"assets/js/jPlayer",
-            supplied:"mp3"
+            supplied:"mp3, wma"
         });
 
     /**
@@ -98,6 +98,19 @@ $(document).ready(function () {
             $(this).attr("id") !== "drpOptions") {
             $("#menuBar").find(".active").removeClass("active");
             $(this).addClass("active");
+
+            var ini = $('.container-fluid');
+            var radio = $('.radio');
+
+            if($(this).text()==="Radio"){
+                ini.fadeOut('fast', function(){
+                    radio.fadeIn('slow');
+                });
+            } else {
+                radio.fadeOut('fast', function(){
+                    ini.fadeIn();
+                });
+            }
         }
     });
 

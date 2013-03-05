@@ -14,13 +14,8 @@
 
     <style type="text/css">
         body {
-            /*padding-top: 60px;*/
             padding-bottom: 40px;
         }
-
-            /*.backgruya{*/
-            /*background-image: url(assets/img/music.jpg);*/
-            /*}*/
     </style>
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
@@ -59,7 +54,7 @@
                     </li>
                     <li class="divider-vertical"></li>
                     <li class="active"><a href="#">Inicio</a></li>
-                    <li><a href="#">Top</a></li>
+                    <li><a href="#">Radio</a></li>
                     <li id="drpOptions" class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Opciones <b class="caret"></b></a>
                         <ul class="dropdown-menu">
@@ -88,7 +83,7 @@
 <!-- FIN BARRA NAVEGACION-->
 
 <!-- CONTAINER -->
-<div class="container-fluid ">
+<div class="container-fluid">
     <div class="alert alert-info">
         <a class="close" data-dismiss="alert" href="#">×</a>
         <b>Bienvendio a Gruya!</b>
@@ -102,13 +97,12 @@
 
                         <li class="nav-header">
                             <p>Playlist &nbsp
-                                <a id="btnLoadMyPlaylist" href="javascript:;">Cargar playlist</a> |
-                                <a id="btnClearPlaylist" href="javascript:;">Borrar playlist</a>
+                                <a id="btnLoadMyPlaylist" href="javascript:;">Cargar</a> |
+                                <a id="btnClearPlaylist" href="javascript:;">Borrar</a>
                             </p>
                         </li>
                         <li>
                             <div class="btn-group btn-group-playlist">
-                                <!--<button id="btnSavePlaylist" class="btn">Guardar</button>-->
                             </div>
                         </li>
                     </ul>
@@ -142,6 +136,20 @@
 
 </div>
 <!-- FIN CONTAINER -->
+
+<!--RADIO-->
+<div class="container radio">
+    <div class="row-fluid">
+        <div class="span12">
+            <a href="http://apolo:8000/urbana.pls"><img src="assets/img/radio/urbana.png" class="img-polaroid"></a>
+            <a href="http://apolo:8000/babel.pls"><img src="assets/img/radio/babel.png" class="img-polaroid"></a>
+            <a href="http://apolo:8000/oceano.pls"><img src="assets/img/radio/oceano.png" class="img-polaroid"></a>
+        </div>
+    </div>
+</div>
+<!--FIN RADIO-->
+
+
 <!--Pantalla modal-->
 <div class="modal hide" id="msjModalInit">
     <div class="modal-header">
@@ -149,16 +157,15 @@
         <h3>Compartir !</h3>
     </div>
     <div class="modal-body">
-        <p>Con compartir playlist, podras notificar a los demas usuarios de Gruya lo que estas escuchando en cada
+        <p>Con compartir playlist, podras notificar a los demás usuarios de Gruya lo que estas escuchando en cada
             momento!</p>
 
-        <p>Cada usuario sera notificado en su sección <b>Que se escucha por ahí?</b> lo que estas escuchando.</p>
+        <p>Cada usuario será notificado en su sección <b>Que se escucha por ahí?</b> lo que estas escuchando.</p>
 
         <p>Para continuar solo necesitamos que nos digas como quieres ser reconocido en el mundo Gruya </p>
         <input id="txtGruyaName" type="text" placeholder="Ingresa tu Gruyaname…">
     </div>
     <div class="modal-footer">
-        <!--<a href="#" class="btn" data-dismiss="modal">Cerrar</a>-->
         <a href="javascript:clouseModalWindows();" class="btn btn-primary">Guardar</a>
     </div>
 </div>
@@ -172,7 +179,6 @@
         <input id="txtChangeGruyaName" type="text" placeholder="Cambiar Gruyaname…">
     </div>
     <div class="modal-footer">
-        <!--<a href="#" class="btn" data-dismiss="modal">Cerrar</a>-->
         <a href="javascript:clouseModalWindows();" class="btn btn-primary">Guardar</a>
     </div>
 </div>
@@ -234,5 +240,6 @@
 <script type="text/javascript" src="assets/js/gruya.listening.js"></script>
 <script type="text/javascript" src="assets/js/sonic/sonic.js"></script>
 <script type="text/javascript" src="assets/js/gruya.loading.js"></script>
+<script type="text/javascript" src="assets/js/gruya.radio.js"></script>
 </body>
 </html>
