@@ -90,9 +90,11 @@ event.on('IndexSongs', function () {
 
     console.log('Indexando musica...');
     // Indexamos la musica para hacer busquedas con reds
-    module.exports.listSongs.forEach(function (str, i) {
+
+    for (var i = 0; i < module.exports.listSongs; i++) {
+        var str = module.exports.listSongs[i];
         if (str != '') {
-            var readStream = fs.createReadStream(str.replace('\r', ''));
+            var readStream = fs.createReadStream("/storage/Musica" + str.replace('\r', '').substring(1, str.length - 1));
             search.index(str.replace('\r', ''), i);
             var parser = new mm(readStream);
             parser.on('artist', function (result) {
@@ -105,7 +107,24 @@ event.on('IndexSongs', function () {
                 searchAlbum.index(result, i);
             });
         }
-    });
+    }
+
+//    module.exports.listSongs.forEach(function (str, i) {
+//        if (str != '') {
+//            var readStream = fs.createReadStream("/storage/Musica" +  str.replace('\r', '').substring(1,str.length - 1));
+//            search.index(str.replace('\r', ''), i);
+//            var parser = new mm(readStream);
+//            parser.on('artist', function (result) {
+//                searchArtist.index(result, i);
+//            });
+//            parser.on('title', function (result) {
+//                searchSong.index(result, i);
+//            });
+//            parser.on('album', function (result) {
+//                searchAlbum.index(result, i);
+//            });
+//        }
+//    });
 
     console.log("Carga de musica finalizada. Ficheros cargados: " + module.exports.listSongs.length);
 });
