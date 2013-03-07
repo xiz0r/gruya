@@ -15,16 +15,16 @@ var lsGruya = new GruyaStorage();
 $(document).ready(function () {
 
     myPlaylist = new jPlayerPlaylist({
-            jPlayer:"#jquery_jplayer_1",
-            cssSelectorAncestor:"#jp_container_1"
+            jPlayer: "#jquery_jplayer_1",
+            cssSelectorAncestor: "#jp_container_1"
         }, [],
         {
-            playlistOptions:{
-                autoPlay:true,
-                enableRemoveControls:true
+            playlistOptions: {
+                autoPlay: true,
+                enableRemoveControls: true
             },
-            swfPath:"assets/js/jPlayer",
-            supplied:"mp3, wma"
+            swfPath: "assets/js/jPlayer",
+            supplied: "mp3, wma"
         });
 
     /**
@@ -100,16 +100,20 @@ $(document).ready(function () {
             $(this).addClass("active");
 
             var ini = $('.container-fluid');
+            var player = $('#repo');
             var radio = $('.radio');
 
-            if($(this).text()==="Radio"){
-                ini.fadeOut('fast', function(){
+            if ($(this).text() === "Radio") {
+                ini.fadeOut('fast', function () {
                     radio.fadeIn('slow');
                 });
+                player.fadeOut();
+
             } else {
-                radio.fadeOut('fast', function(){
+                radio.fadeOut('fast', function () {
                     ini.fadeIn();
                 });
+                player.fadeIn();
             }
         }
     });
@@ -121,7 +125,7 @@ $(document).ready(function () {
     loadPlaylistFromLocalStorage();
 
     /**
-     * Agregar tema al playlist
+     *  Agregar tema al playlist
      */
     $("#lista").on('click', "#btnAddPlaylist", function (e) {
         e.preventDefault();
@@ -152,7 +156,7 @@ $(document).ready(function () {
         }
 
         // Agregamos la cancion al playlist
-        myPlaylist.add({title:uri, artist:"", mp3:uri});
+        myPlaylist.add({title: uri, artist: "", mp3: uri});
 
         // Si sos el primer item del playlist arranca a sonar amista!
         if (myPlaylist.playlist.length == 1) {
@@ -271,7 +275,18 @@ $(document).ready(function () {
     /**
      * SEARCH
      * -------------------------------------------------------------------------------------------------
-     **/
+     */
+
+     /**
+     * Busco álbum de manera horrible. Ya se va a arreglar. No me juzguen.
+     */
+    $("#lista").on('click', "#lnkAlbum", function (e) {
+        e.preventDefault();
+        var album = this.innerText;
+        $("#txtSearch").val(album);
+        search();
+    });
+
     $('#txtSearch').bind('keypress', function (e) {
         if (e.keyCode == 13) {
             e.preventDefault();
@@ -308,8 +323,12 @@ $(document).ready(function () {
                 var artist = uri[uri.length - 2];
 
                 // Generamos la propia row!
+                // var row = "<tr><td><a id='btnAddPlaylist' class='addPlay' rel='tooltip' title='Agregar canción al Playlist' href='#'><i class='icon-music'></i></a></td>" +
+                //     "<td>" + nameSong + "<p class='artist-song'>" + artist + "</p></td><td style='Display:none'>" + data[key].uri + "</td></tr>";
+
                 var row = "<tr><td><a id='btnAddPlaylist' class='addPlay' rel='tooltip' title='Agregar canción al Playlist' href='#'><i class='icon-music'></i></a></td>" +
-                    "<td>" + nameSong + "<p class='artist-song'>" + artist + "</p></td><td style='Display:none'>" + data[key].uri + "</td></tr>";
+                    "<td>" + nameSong + "<p class='artist-song'><a id='lnkAlbum'>" + artist + "</a></p></td><td style='Display:none'>" + data[key].uri + "</td></tr>";
+
 
                 $(row).insertAfter("#lista tr:last");
             });
@@ -354,7 +373,7 @@ function clouseModalWindows() {
         msjModal.modal('hide');
 
         if (newName !== "") {
-            socket.emit('changeGruyaName', {newName:newName, oldName:gruyaName});
+            socket.emit('changeGruyaName', {newName: newName, oldName: gruyaName});
             localStorage.gruyaName = newName;
             lblUserName.find('a').text(newName);
         }
@@ -389,7 +408,7 @@ function notifyChangeLocalPlaylist(isEmptyPlaylist) {
         socket.emit('sendPlaylist', newPlaylist);
     } else {
         socket.emit('sendPlaylist', [
-            {gruyaName:localStorage.gruyaName, songs:[] }
+            {gruyaName: localStorage.gruyaName, songs: [] }
         ]);
     }
 }
@@ -418,7 +437,7 @@ function loadPlaylistFromLocalStorage() {
             $(li).insertAfter("#ulPlayList li:last");
 
             //Agregamos los temas al playlist!
-            myPlaylist.add({ title:val, artist:"", mp3:val });
+            myPlaylist.add({ title: val, artist: "", mp3: val });
         });
     }
 }

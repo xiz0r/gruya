@@ -919,12 +919,50 @@ form.well {
     position: relative;
     font-size: 12px;
 }
-.rfloat{float:right}
 
-.radio{
+.rfloat {
+    float: right
+}
+
+.radio {
     display: none;
 }
-.radio img{
+
+.radio img {
     width: 140px;
     height: 140px;
+}
+
+.contolRadio {
+    position: absolute;
+    height: 0px;
+    background-color: #000000;
+    opacity: 0.6;
+    z-index: 2;
+    width: 150px;
+    bottom: 40px;
+    text-align: center;
+}
+
+.radioConainer {
+    width: 150px;
+    /*float: left;*/
+    padding: 6px;
+    display: inline-block;
+}
+
+.ico-play {
+    position: relative;
+    top: 10px;
+    cursor: pointer;
+    color: #ffffff;
+}
+
+.ico-play-none {
+    display: none !important;
+}
+
+.playing-radio {
+    opacity: 0.4;
+
 }

@@ -4,74 +4,112 @@
  * Time: 3:33 AM
  */
 
-$('.radio').find('a').on('click', function (e) {
+$('.radio').find('i').on('click', function (e) {
     e.preventDefault();
-    var uri = $(this).attr('href');
-//    myPlaylist = new jPlayerPlaylist({
-//            jPlayer:"#jquery_jplayer_1",
-//            cssSelectorAncestor:"#jp_container_1"
-//        }, [{mp3:'http://apolo:8000/oceano.pls'}],
-//        {
-//            playlistOptions:{
-//                autoPlay:true,
-//                enableRemoveControls:true
-//            },
-//            swfPath:"assets/js/jPlayer",
-//            supplied:"mp3, wma"
-//        });
+    var vthis = $(this);
+    var player = document.getElementById('jp_audio_0');
 
+    // Validamos si hay otra radio sonando
+    otherRadioIsPlaying(vthis, player);
 
-//    myPlaylist.add({title:'radio', artist:"", mp3:uri});
-////    myPlaylist.add({title:'radio', artist:"", });
-//    myPlaylist.play(0);
-
-    var stream = {
-            title: "ABC Jazz",
-            mp3: "http://apolo:8000/gruyarandom.mp3"
-        };
-
-    $("#jquery_jplayer_1").jPlayer('clearMedia');
-    $("#jquery_jplayer_1").jPlayer('setMedia', stream);
-
-//    $("#jquery_jplayer_1").jPlayer({
-//        ready: function (event) {
-//            ready = true;
-////            $(this).jPlayer("setMedia", {mp3:"http://apolo:8000/gruyarandom.mp3"});
-//            $(this).jPlayer("setMedia", "http://apolo:8000/gruyarandom.mp3");
-//        },
-//        pause: function() {
-//            $(this).jPlayer("clearMedia");
-//        },
-//        error: function(event) {
-//            alert(event);
-//            if(ready && event.jPlayer.error.type === $.jPlayer.error.URL_NOT_SET) {
-//                // Setup the media stream again and play it.
-//                $(this).jPlayer("setMedia", "http://apolo:8000/gruyarandom.mp3").jPlayer("play");
-//            }
-//        },
-//        swfPath: "js",
-//        supplied: "mp3, ogg",
-//        preload: "none",
-//        wmode: "window"
-//    });
-
-
-
-//    $("#jquery_jplayer_1").jPlayer({
-//        errorAlerts: true,
-//        ready: function ()
-//        {
-//            $(this).jPlayer.setMedia(stream);
-//        },
-//        error: function (event) {
-//            console.log(event.jPlayer.error);
-//            console.log(event.jPlayer.error.type);
-//        },
-//        swfPath: "js",
-//        solution: "html,flash",
-//        supplied: "mp3"
-//    });
-
-
-
+    if (vthis.hasClass('icon-play')) {
+        playRadio(vthis, player);
+    } else {
+        pauseRadio(vthis, player);
+    }
 });
+
+
+var rContainer = $('.radioConainer');
+rContainer.hover(function () {
+        $(this).find('div').animate({
+                height:'50px',
+//                bottom:'50px'
+            },
+            function () {
+                $(this).find('i').removeClass('ico-play-none');
+            });
+    },
+    function () {
+        $(this).find('div').animate({
+                height:'0px',
+//                bottom:'0px'
+            },
+            function () {
+                $(this).find('i').addClass('ico-play-none');
+            });
+    });
+
+/**
+ * Funcion encargada de retornar la uri de la radio que se quiere escuchar
+ * @param key identificador de la radio
+ * @return {String} uri de la radio
+ */
+function getRadioUri(key) {
+    var radioUri = '';
+    switch (key) {
+        case 'oceano':
+            radioUri = "http://apolo:8000/Oceano.pls";
+            break;
+        case 'urbana':
+            radioUri = "http://apolo:8000/Urbana.pls";
+            break;
+        case 'babel':
+            radioUri = "http://apolo:8000/Babel.pls";
+            break;
+        case 'gruya':
+            radioUri = "http://apolo:8000/gruyarandom.mp3";
+            break;
+        case 'radiocero':
+            radioUri = "http://apolo:8000/RadioCero.pls";
+            break;
+        case 'elespectador':
+            radioUri = "http://apolo:8000/ElEspectador.pls";
+            break;
+        case 'oldiesfm':
+            radioUri = "http://apolo:8000/OldiesFM.pls";
+            break;
+        case 'radiodisney':
+            radioUri = "http://apolo:8000/RadioDisney.pls";
+            break;
+    }
+    return radioUri;
+}
+
+/**
+ * Funcion que pausa el stream de la radio
+ * @param vthis elemento i seleccionado
+ * @param player tag audio html
+ */
+function pauseRadio(vthis, player) {
+    player.pause();
+    vthis.parent().parent().removeClass('playing-radio');
+    vthis.addClass('icon-play');
+    vthis.removeClass('icon-pause');
+}
+
+/**
+ * Funcion que comienza la reproduccion del stream
+ * @param vthis elemento i seleccionado
+ * @param player tag audio html
+ */
+function playRadio(vthis, player) {
+    var id = vthis.attr('id');
+    $('#jquery_jplayer_1').jPlayer('clearMedia');
+    myPlaylist.remove();
+
+    player.src = getRadioUri(id);
+    player.play();
+
+    vthis.parent().parent().addClass('playing-radio');
+    vthis.removeClass('icon-play');
+    vthis.addClass('icon-pause');
+}
+
+function otherRadioIsPlaying(vthis, player) {
+    var container = vthis.parent().parent().parent();
+    if (container.find('.playing-radio').length > 0) {
+        var i = container.find('.playing-radio').find('i');
+        pauseRadio(i, player);
+    }
+}
