@@ -28,7 +28,8 @@
         "underscore":"",
         "socket.io":"",
         "nconf": "0.6.7",
-		"musicmetadata":""
+		"musicmetadata":"",
+        "readdirp":""
     },
     "main":"server"
 }

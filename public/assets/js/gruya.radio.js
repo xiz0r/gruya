@@ -23,7 +23,7 @@ $('.radio').find('i').on('click', function (e) {
 var rContainer = $('.radioConainer');
 rContainer.hover(function () {
         $(this).find('div').animate({
-                height:'50px',
+                height:'50px'
 //                bottom:'50px'
             },
             function () {
@@ -32,7 +32,7 @@ rContainer.hover(function () {
     },
     function () {
         $(this).find('div').animate({
-                height:'0px',
+                height:'0px'
 //                bottom:'0px'
             },
             function () {
@@ -94,11 +94,10 @@ function pauseRadio(vthis, player) {
  * @param player tag audio html
  */
 function playRadio(vthis, player) {
-    var id = vthis.attr('id');
     $('#jquery_jplayer_1').jPlayer('clearMedia');
     myPlaylist.remove();
 
-    player.src = getRadioUri(id);
+    player.src = getRadioUri(vthis.attr('id'));
     player.play();
 
     vthis.parent().parent().addClass('playing-radio');

@@ -7,18 +7,18 @@
 var express = require('express')
     , less = require('less')
     , connect = require('connect')
-    , fs = require('fs')
     , e = require('events').EventEmitter
     , reds = require('reds')
     , nconf = require('nconf')
-    , mm = require('musicmetadata');
+    , readdirp = require('readdirp');
+
 
 /**
  * CONFIGURATION
  * -------------------------------------------------------------------------------------------------
  * load configuration settings from ENV, then settings.json.
  **/
-nconf.env().file({file:'./settings.json'});
+nconf.env().file({file: './settings.json'});
 
 var app = module.exports = express.createServer();
 
@@ -26,10 +26,10 @@ var app = module.exports = express.createServer();
  * REDS
  * -------------------------------------------------------------------------------------------------
  **/
-var search = app.search = reds.createSearch('music');
-var searchAlbum = app.searchAlbum = reds.createSearch('albums');
-var searchArtist = app.searchArtist = reds.createSearch('artists');
-var searchSong = app.searchSong = reds.createSearch('songs');
+//var search = app.search = reds.createSearch('music');
+app.searchAlbum = reds.createSearch('albums');
+app.searchArtist = reds.createSearch('artists');
+app.searchSong = reds.createSearch('songs');
 
 /**
  * CONFIGURATION
@@ -44,13 +44,19 @@ app.configure(function () {
     //app.use(require('./middleware/locals'));
     //app.use(express.cookieParser());
     //app.use(express.session({ secret: 'azure zomg' }));
-    app.use(express.compiler({ src:__dirname + '/public', enable:['less'] }));
+    app.use(express.compiler({ src: __dirname + '/public', enable: ['less'] }));
     app.use(connect.static(__dirname + '/public'));
     app.use(connect.static(nconf.get('MP3_PATH'))); //Ruta de archivos mp3
     app.use(app.router);
-    app.set('view options', { layout:false});
+    app.set('view options', { layout: false});
     app.use(require('stylus').middleware(__dirname + '/public'));
 });
+
+/**
+ * GLOAD
+ * -------------------------------------------------------------------------------------------------
+ **/
+var gload = require('./lib/gload')(app, nconf.get('CHUNK'));
 
 /**
  * READ SONGS
@@ -58,75 +64,24 @@ app.configure(function () {
  **/
 var event = new e();
 event.on('LoadSongs', function () {
-    console.log("Actualizando musica...");
+    console.log("Iniciando lectura de archivos...");
     module.exports.listSongs = [];
-    module.exports.listSongsString = "";
-    var readStream = fs.createReadStream(nconf.get('PLAYLIST_PATH'), { encoding:'ascii' });
 
-    readStream.on("data", function (data) {
-        /* 
-         * El tamaño del buffer de lectura es de 64kb.
-         * Hacemos un concat por si el archivo tiene mas de 64kb.
-         **/
-        module.exports.listSongsString = module.exports.listSongsString.concat(data);
-    });
+    readdirp({ root: nconf.get('MP3_PATH'), fileFilter: '*.mp3' })
+        .on('data',function (entry) {
 
-    readStream.on("error", function (err) {
-        console.error("Se rompio... :: %s", err)
-    });
+            module.exports.listSongs.push(entry.fullPath);
 
-    readStream.on("close", function () {
-        module.exports.listSongs = module.exports.listSongsString.split("\n");
+        }).on("end", function () {
 
-        // Borramos el list de string temporal
-        module.exports.listSongsString = "";
-
-        // Evento que indexa el array
-        event.emit('IndexSongs');
-    });
-});
-
-event.on('IndexSongs', function () {
-
-    console.log('Indexando musica...');
-    // Indexamos la musica para hacer busquedas con reds
-
-    for (var i = 0; i < module.exports.listSongs; i++) {
-        var str = module.exports.listSongs[i];
-        if (str != '') {
-            var readStream = fs.createReadStream("/storage/Musica" + str.replace('\r', '').substring(1, str.length - 1));
-            search.index(str.replace('\r', ''), i);
-            var parser = new mm(readStream);
-            parser.on('artist', function (result) {
-                searchArtist.index(result, i);
-            });
-            parser.on('title', function (result) {
-                searchSong.index(result, i);
-            });
-            parser.on('album', function (result) {
-                searchAlbum.index(result, i);
-            });
-        }
-    }
-
-//    module.exports.listSongs.forEach(function (str, i) {
-//        if (str != '') {
-//            var readStream = fs.createReadStream("/storage/Musica" +  str.replace('\r', '').substring(1,str.length - 1));
-//            search.index(str.replace('\r', ''), i);
-//            var parser = new mm(readStream);
-//            parser.on('artist', function (result) {
-//                searchArtist.index(result, i);
-//            });
-//            parser.on('title', function (result) {
-//                searchSong.index(result, i);
-//            });
-//            parser.on('album', function (result) {
-//                searchAlbum.index(result, i);
-//            });
-//        }
-//    });
-
-    console.log("Carga de musica finalizada. Ficheros cargados: " + module.exports.listSongs.length);
+            console.log("Lectura de archivos finalizada. Archivos cargados: " + module.exports.listSongs.length);
+            for (var i = 0; i < module.exports.listSongs.length; i++) {
+                var str = module.exports.listSongs[i];
+                if (str) {
+                    gload.add(i, str);
+                }
+            }
+        });
 });
 
 //Hacemos la primera carga de musica
