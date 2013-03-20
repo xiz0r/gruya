@@ -81,7 +81,7 @@ event.on('LoadSongs', function () {
             app.listSongs.push(song);
 
         }).on("end", function () {
-            loadMetadata();
+            process.nextTick(loadMetadata);
         });
 
     function loadMetadata() {
@@ -92,7 +92,8 @@ event.on('LoadSongs', function () {
             var song = app.listSongs[i];
             if (song) {
 
-                var mp3 = fs.readFileSync(song.url);
+                var mp3 = fs.readFileSync(song.url, {autoClose: true});
+
                 var result = new id3(mp3);
                 result.parse();
                 song.id = i;
@@ -109,17 +110,19 @@ event.on('LoadSongs', function () {
     }
 
     function index(song) {
-        if(song.album)
-            app.searchAlbum.index(song.album, song.id);
-        if(song.artist)
-            app.searchArtist.index(song.artist, song.id);
-        if(song.title)
-            app.searchSong.index(song.title, song.id);
+        if (song.album)
+            process.nextTick(app.searchAlbum.index(song.album, song.id));
+        if (song.artist)
+            process.nextTick(app.searchArtist.index(song.artist, song.id));
+        if (song.title)
+            process.nextTick(app.searchSong.index(song.title, song.id));
     }
 });
 
 //Hacemos la primera carga de musica
+
 event.emit('LoadSongs');
+
 
 //Lanzamos la carga de musica cada 15min
 //setInterval(function(){
