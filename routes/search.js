@@ -19,13 +19,13 @@ module.exports = function (app) {
         try {
             switch (filter) {
                 case 'artist':
-                    this.findArtis(nameSearch);
+                    findArtis(nameSearch);
                     break;
                 case 'album':
-                    this.findAlbum(nameSearch);
+                    findAlbum(nameSearch);
                     break;
                 case 'all':
-                    this.findAll(nameSearch);
+                    findAll(nameSearch);
                     break;
             }
         } catch (error) {
@@ -38,9 +38,9 @@ module.exports = function (app) {
          *
          * @param query {String}
          */
-        this.findArtis = function (query) {
+        function findArtis(query) {
             app.searchArtist.query(query).end(function (err, ids) {
-                if(err) throw err;
+                if (err) throw err;
 
                 ids.forEach(function (id) {
                     if (maxResult > listResultJson.length) {
@@ -58,9 +58,9 @@ module.exports = function (app) {
          *
          * @param query {String}
          */
-        this.findAlbum = function (query) {
+        function findAlbum(query) {
             app.searchAlbum.query(query).end(function (err, ids) {
-                if(err) throw err;
+                if (err) throw err;
 
                 ids.forEach(function (id) {
                     if (maxResult > listResultJson.length) {
@@ -81,9 +81,9 @@ module.exports = function (app) {
          *
          * @param query {String}
          */
-        this.findAll = function (query) {
+        function findAll(query) {
             app.searchArtist.query(query).end(function (err, ids) {
-                if(err) throw err;
+                if (err) throw err;
 
                 ids.forEach(function (id) {
                     if (maxResult > listResultJson.length) {
@@ -93,7 +93,7 @@ module.exports = function (app) {
                 });
 
                 app.searchSong.query(query).end(function (err, ids) {
-                    if(err) throw err;
+                    if (err) throw err;
 
                     ids.forEach(function (id) {
                         if (maxResult > listResultJson.length) {
@@ -105,8 +105,8 @@ module.exports = function (app) {
                     });
 
                     app.searchAlbum.query(nameSearch).end(function (err, ids) {
-                        if(err) throw err;
-                        
+                        if (err) throw err;
+
                         ids.forEach(function (id) {
                             if (maxResult > listResultJson.length) {
                                 var song = app.listSongs[id];
