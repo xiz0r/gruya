@@ -10,8 +10,10 @@ var express = require('express')
     , e = require('events').EventEmitter
     , reds = require('reds')
     , nconf = require('nconf')
-    , readdirp = require('readdirp');
-
+    , readdirp = require('readdirp')
+    , entity = require('./lib/entity')
+    , id3 = require('id3')
+    , fs = require('fs');
 
 /**
  * CONFIGURATION
@@ -37,26 +39,31 @@ app.searchSong = reds.createSearch('songs');
  * set up view engine (jade), css preprocessor (less), and any custom middleware (errorHandler)
  **/
 app.configure(function () {
+
+    app.use(express.logger());
+    app.use(express.compress());
+
     app.set('views', __dirname + '/views');
     app.set('view engine', 'jade');
     app.use(express.bodyParser());
     app.use(express.methodOverride());
-    //app.use(require('./middleware/locals'));
-    //app.use(express.cookieParser());
-    //app.use(express.session({ secret: 'azure zomg' }));
+
+    app.use(express.cookieParser());
+    //app.use(express.cookieSession());
+    //app.use(express.session({ secret: 'gruyasec' }));
     app.use(express.compiler({ src: __dirname + '/public', enable: ['less'] }));
     app.use(connect.static(__dirname + '/public'));
     app.use(connect.static(nconf.get('MP3_PATH'))); //Ruta de archivos mp3
     app.use(app.router);
     app.set('view options', { layout: false});
-    app.use(require('stylus').middleware(__dirname + '/public'));
+    //app.use(require('stylus').middleware(__dirname + '/public'));
 });
 
 /**
- * GLOAD
+ * GLOAD - Lectura de metadata
  * -------------------------------------------------------------------------------------------------
  **/
-var gload = require('./lib/gload')(app, nconf.get('CHUNK'));
+//var gload = require('./lib/gload')(app, nconf.get('CHUNK'));
 
 /**
  * READ SONGS
@@ -65,23 +72,50 @@ var gload = require('./lib/gload')(app, nconf.get('CHUNK'));
 var event = new e();
 event.on('LoadSongs', function () {
     console.log("Iniciando lectura de archivos...");
-    module.exports.listSongs = [];
+    app.listSongs = [];
 
     readdirp({ root: nconf.get('MP3_PATH'), fileFilter: '*.mp3' })
         .on('data',function (entry) {
 
-            module.exports.listSongs.push(entry.fullPath);
+            var song = new entity.Song(entry.fullPath);
+            app.listSongs.push(song);
 
         }).on("end", function () {
-
-            console.log("Lectura de archivos finalizada. Archivos cargados: " + module.exports.listSongs.length);
-            for (var i = 0; i < module.exports.listSongs.length; i++) {
-                var str = module.exports.listSongs[i];
-                if (str) {
-                    gload.add(i, str);
-                }
-            }
+            loadMetadata();
         });
+
+    function loadMetadata() {
+        console.log("Lectura de archivos finalizada. Archivos cargados: " + app.listSongs.length);
+        console.log("Iniciando lectura de metadata...");
+
+        for (var i = 0; i < app.listSongs.length; i++) {
+            var song = app.listSongs[i];
+            if (song) {
+
+                var mp3 = fs.readFileSync(song.url);
+                var result = new id3(mp3);
+                result.parse();
+                song.id = i;
+                song.title = result.get('title');
+                song.artist = result.get('artist');
+                song.album = result.get('album');
+                song.gender = result.get('genre');
+                song.track = result.get('track');
+
+                index(song);
+            }
+        }
+        console.log("Lectura de metadata finalizada");
+    }
+
+    function index(song) {
+        if(song.album)
+            app.searchAlbum.index(song.album, song.id);
+        if(song.artist)
+            app.searchArtist.index(song.artist, song.id);
+        if(song.title)
+            app.searchSong.index(song.title, song.id);
+    }
 });
 
 //Hacemos la primera carga de musica
@@ -96,16 +130,21 @@ event.emit('LoadSongs');
  * ROUTING
  * -------------------------------------------------------------------------------------------------
  **/
+
 require('./routes/home')(app);
 require('./routes/search')(app);
+
 /**
  * DISTRIBUTION PLAYLIST
  * -------------------------------------------------------------------------------------------------
  */
+
 require('./server.io');
+
 /**
  * INIT SERVER
  * -------------------------------------------------------------------------------------------------
  **/
+
 app.listen(nconf.get('LISTEN_PORT'));
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);

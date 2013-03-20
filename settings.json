@@ -1,6 +1,6 @@
 {
     "LISTEN_PORT":"1880",
-    "MP3_PATH":"/storage/Musica/",
+    "MP3_PATH":"C:\\musica\\",
     "PLAYLIST_PATH":"./playlist.m3u",
-    "CHUNK":"500"
+    "CHUNK":"1"
 }
