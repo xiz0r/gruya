@@ -1,6 +1,7 @@
 {
     "LISTEN_PORT":"1880",
     "MP3_PATH":"C:\\musica\\Arctic Monkeys\\",
+    "LOCAL_PATH":"",
     "PLAYLIST_PATH":"./playlist.m3u",
     "CHUNK":"1"
 }

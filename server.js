@@ -77,7 +77,8 @@ event.on('LoadSongs', function () {
     readdirp({ root: nconf.get('MP3_PATH'), fileFilter: '*.mp3' })
         .on('data',function (entry) {
 
-            var song = new entity.Song(entry.fullPath);
+            var path = entry.fullPath.replace(nconf.get('LOCAL_PATH'),"");
+            var song = new entity.Song(path);
             app.listSongs.push(song);
 
         }).on("end", function () {
@@ -97,7 +98,7 @@ event.on('LoadSongs', function () {
     function readAndParse(song) {
         if (!song) return;
 
-            var buffer = fs.readFileSync(song.url,{autoClose: true});
+            var buffer = fs.readFileSync(song.url);
             var info = new id3(buffer);
             info.parse();
 

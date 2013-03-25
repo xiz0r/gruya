@@ -178,7 +178,7 @@ $(document).ready(function () {
 
         //Limpiamos playlist
         var countItems = ulPlaylsit.find("li").size();
-        ulPlaylsit.find("li").slice(2, countItems).remove();
+        ulPlaylsit.find("li").slice(2, countItems);
 
         // Borramos el playlist de jplayer
         myPlaylist.remove();
@@ -333,7 +333,11 @@ $(document).ready(function () {
             // Limpiamos la tabla
             $("#lista").find("tr:gt(0)").remove();
 
-            data.forEach(function (song) {
+            var sortData = _.sortBy(data, function (i) {
+                return _.contains(i, textSearch);
+            });
+
+            sortData.forEach(function (song) {
 
                 var row = "<tr><td><a id='btnAddPlaylist' class='addPlay' rel='tooltip' title='Agregar canción al Playlist' href='#'><i class='icon-music'></i></a></td>" +
                     "<td><b>" + song.title + "</b><p class='artist-song'><span id='lnkArtist' class='pointer'>" + song.artist +
@@ -430,13 +434,13 @@ function loadPlaylistFromLocalStorage() {
         var elem = defaultPlayList[0].songs;
         _.each(elem, function (val) {
 
-            var li = "<li class='jp-playlist-current pointer' id=" + val.url + ">" +
+            var li = "<li class='jp-playlist-current pointer' id=" + val.uri + ">" +
                 "<a class='close jp-playlist-item-remove'>x</a><a id='playListItem' class='jp-playlist-item' tabindex='1'>" + val.title + " - " + val.artist + "</a></li>";
 
             $(li).insertAfter("#ulPlayList li:last");
 
             //Agregamos los temas al playlist!
-            myPlaylist.add({ title: val.title, artist: val.artist, mp3: val.url });
+            myPlaylist.add({ title: val.title, artist: val.artist, mp3: val.uri });
         });
     }
 }
