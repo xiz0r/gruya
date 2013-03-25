@@ -56,7 +56,8 @@ function loadRemotePlaylist(data) {
         if (item.name === localStorage.gruyaName)
             continue;
 
-        var li = "<li><a id='btnGetRemotePlaylist' href='#'><span>" + item.name + "</span><div class='rfloat'><span class='uiSideNavCount'>" + item.countSongs + "</span></div>  </a></li><li class='divider'></li>";
+        var li = "<li><a id='btnGetRemotePlaylist' href='#'><span>" + item.name + "</span><div class='rfloat'><span class='uiSideNavCount'>" +
+            item.countSongs + "</span></div>  </a></li><li class='divider'></li>";
         $(li).insertAfter("#listaRemoteSongs li:last");
     }
 }
@@ -89,7 +90,8 @@ function loadRemotePlaylistToLocal(data) {
         //Obtenemos el nombre del archivo y el album
         var nameSong = stringRemoveExtension(splitUri[splitUri.length - 1]);
 
-        var li = "<li class='jp-playlist-current' id=" + uri + "><a href='javascript:;' class='close jp-playlist-item-remove'>x</a><a id='playListItem' href=" + uri + " class='jp-playlist-item' tabindex='1'>" + decodeURI(nameSong) + "</a></li>";
+        var li = "<li class='jp-playlist-current' id=" + uri + "><a href='javascript:;' class='close jp-playlist-item-remove'>x</a><a id='playListItem' href=" +
+            uri + " class='jp-playlist-item' tabindex='1'>" + decodeURI(nameSong) + "</a></li>";
         $(li).insertAfter("#ulPlayList li:last");
 
         //Agregamos el tema al playlist en el localstorage

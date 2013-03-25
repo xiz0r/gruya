@@ -40,7 +40,7 @@ app.searchSong = reds.createSearch('songs');
  **/
 app.configure(function () {
 
-    app.use(express.logger());
+    //app.use(express.logger());
     app.use(express.compress());
 
     app.set('views', __dirname + '/views');
@@ -88,39 +88,43 @@ event.on('LoadSongs', function () {
         console.log("Lectura de archivos finalizada. Archivos cargados: " + app.listSongs.length);
         console.log("Iniciando lectura de metadata...");
 
-        for (var i = 0; i < app.listSongs.length; i++) {
-            var song = app.listSongs[i];
-            if (song) {
+        app.listSongs.forEach(function(item, i){
+            item.id = i;
+            readAndParse(item);
+        });
+    }
 
-                var mp3 = fs.readFileSync(song.url, {autoClose: true});
+    function readAndParse(song) {
+        if (!song) return;
 
-                var result = new id3(mp3);
-                result.parse();
-                song.id = i;
-                song.title = result.get('title');
-                song.artist = result.get('artist');
-                song.album = result.get('album');
-                song.gender = result.get('genre');
-                song.track = result.get('track');
+            var buffer = fs.readFileSync(song.url,{autoClose: true});
+            var info = new id3(buffer);
+            info.parse();
 
-                index(song);
-            }
+            song.title = info.get('title');
+            song.artist = info.get('artist');
+            song.album = info.get('album');
+            song.gender = info.get('genre');
+            song.track = info.get('track');
+
+            index(song);
+
+        if(app.listSongs.length - 1 === song.id){
+            console.log("Lectura de metadata terminada.");
         }
-        console.log("Lectura de metadata finalizada");
     }
 
     function index(song) {
         if (song.album)
-            process.nextTick(app.searchAlbum.index(song.album, song.id));
+            app.searchAlbum.index(song.album, song.id);
         if (song.artist)
-            process.nextTick(app.searchArtist.index(song.artist, song.id));
+            app.searchArtist.index(song.artist, song.id);
         if (song.title)
-            process.nextTick(app.searchSong.index(song.title, song.id));
+            app.searchSong.index(song.title, song.id);
     }
 });
 
 //Hacemos la primera carga de musica
-
 event.emit('LoadSongs');
 
 

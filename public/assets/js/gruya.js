@@ -6,7 +6,7 @@
 
 var currentSearch = "";
 var myPlaylist;
-var uriApolo = window.location.protocol + "//" + window.location.host;
+var uriApolo = window.location.protocol + "//" + window.location.host + "/";
 var isMyPlaylist = true;
 
 // Instanciamos el localstorage
@@ -127,28 +127,32 @@ $(document).ready(function () {
     /**
      *  Agregar tema al playlist
      */
-    $("#lista").on('click', "#btnAddPlaylist", function (e) {
+    var $listContainer = $("#lista");
+    $listContainer.on('click', "#btnAddPlaylist", function (e) {
         e.preventDefault();
 
+        var tr = $(this).closest('tr');
+
         //Obtenemos la uri para el audio selecionado
-        var uriSelectedSong = $(this).closest('tr').find('td:last').html();
+        var uriSelectedSong = tr.find('td:last').html();
+
         //Quitamos el punto basura que le deje al playlist
-        uriSelectedSong = uriSelectedSong.substring(1, uriSelectedSong.length).trim();
+        uriSelectedSong = uriSelectedSong.substring(1, uriSelectedSong.length);
 
         //Obtenemos el nombre del tema
-        var song = uriSelectedSong.split("/");
-        var nameSong = song[song.length - 1];
 
-        var encodeUriSelectedSong = encodeURI(uriSelectedSong).replace("&", "%26");
+        var song = tr.find('td:nth-child(2)').find('b').text();
+        var artist = tr.find('td:nth-child(2)').find('#lnkArtist').text();
 
-        var uri = uriApolo + encodeUriSelectedSong;
-        var li = "<li class='jp-playlist-current' id=" + uri + "><a href='javascript:;' class='close jp-playlist-item-remove'>x</a><a id='playListItem' href=" + uri + " class='jp-playlist-item' tabindex='1'>" + stringRemoveExtension(nameSong) + "</a></li>";
+        var uri = uriApolo + encodeURI(uriSelectedSong);
+        var li = "<li class='jp-playlist-current pointer' id=" + uri + ">" +
+            "<a class='close jp-playlist-item-remove'>x</a><a id='playListItem' class='jp-playlist-item' tabindex='1'>" + song + " - " + artist + "</a></li>";
         $(li).insertAfter("#ulPlayList li:last");
 
 
         //Agregamos el tema al playlist en el localstorage
         if (isMyPlaylist && lsGruya) {
-            lsGruya.add("default", uri); //Por ahora solo se guardan temas en el playlist por defecto
+            lsGruya.add("default", {title: song, artist: artist, uri: uri}); //Por ahora solo se guardan temas en el playlist por defecto
             lsGruya.save();
 
             // Notificamos el cambio en el playlist a los demas clientes
@@ -156,7 +160,7 @@ $(document).ready(function () {
         }
 
         // Agregamos la cancion al playlist
-        myPlaylist.add({title: uri, artist: "", mp3: uri});
+        myPlaylist.add({title: song, artist: artist, mp3: uri});
 
         // Si sos el primer item del playlist arranca a sonar amista!
         if (myPlaylist.playlist.length == 1) {
@@ -252,20 +256,17 @@ $(document).ready(function () {
             //Removemos el active de los li
             li.removeClass("active");
             //Activamos el item que esta sonando now!
-            var uri = ulPlaylsit.find("li:eq(" + index + ")").addClass("active").attr("id");
+            var songName = ulPlaylsit.find("li:eq(" + index + ")").addClass("active").find('a:last').text();
 
             //Mejor ni preguntar porq si le das next o previus deja el titulo display:none
-            showTitle(uri); //TODO ahora que sobreescribimos el next y el previous se podria hacer ahi esta chanchada...
+            showTitle(songName); //TODO ahora que sobreescribimos el next y el previous se podria hacer ahi esta chanchada...
         }
     }
 
-    function showTitle(uri) {
+    function showTitle(songName) {
         // Mostramos el nombre de la cancion con un poco de color !!
-        var nameSplit = decodeURI(uri).split("/");
-        var name = stringRemoveExtension(nameSplit[nameSplit.length - 1]);
         var playerName = $("#playerName");
-
-        playerName.text(name);
+        // playerName.text(songName);
         $(".jp-title").show();
         playerName.fadeOut("slow", function () {
             playerName.fadeIn("slow");
@@ -277,63 +278,70 @@ $(document).ready(function () {
      * -------------------------------------------------------------------------------------------------
      */
 
-     /**
-     * Busco álbum de manera horrible. Ya se va a arreglar. No me juzguen.
+    /**
+     * Busqueda por artista
      */
-    $("#lista").on('click', "#lnkAlbum", function (e) {
+    $listContainer.on('click', "#lnkArtist", function (e) {
         e.preventDefault();
-        var album = this.innerText;
-        $("#txtSearch").val(album);
-        search();
+        var artist = this.innerText;
+        search(artist, 'artist');
     });
 
+    /**
+     * Busqueda por album
+     */
+    $listContainer.on('click', "#lnkAlbum", function (e) {
+        e.preventDefault();
+        var album = this.innerText;
+        alert(album);
+        search(album, 'album');
+    });
+
+    /**
+     * Al dar enter en el input de busqueda se lanza una busqueda full
+     */
     $('#txtSearch').bind('keypress', function (e) {
         if (e.keyCode == 13) {
             e.preventDefault();
-            search();
+            var textSearch = $("#txtSearch").val(); //Texto a buscar
+            search(textSearch);
         }
     });
 
+    /**
+     * Al hacer click en el ico de busqueda se lanza una busqueda full
+     */
     $("#icoSearch").click(function (e) {
         e.preventDefault();
-        search();
+        var textSearch = $("#txtSearch").val(); //Texto a buscar
+        search(textSearch);
     });
 
-    function search() {
-        var textSearch = $("#txtSearch").val(); //Texto a buscar
-        if (textSearch === currentSearch || textSearch == "") {
+    function search(textSearch, type) {
+
+        if (textSearch === currentSearch || textSearch.length > 70 || textSearch == "") {
             return;
         }
         currentSearch = textSearch;
 
+        //Por defecto el tipo de busqueda es all.
+        type || (type = 'all');
+
         // jQuery AJAX
-        $.getJSON("/search/" + textSearch, function (data) {
-            // Loading
-            var node = document.getElementById("loading").appendChild(s.canvas);
-            s.play();
+        $.getJSON("/search/" + type + "/" + textSearch, function (data) {
 
             // Limpiamos la tabla
             $("#lista").find("tr:gt(0)").remove();
 
-            $.each(data, function (key, value) {
-                var uri = data[key].uri.split("/");
-
-                // btenemos el nombre del archivo y el album
-                var nameSong = stringRemoveExtension(uri[uri.length - 1]);
-                var artist = uri[uri.length - 2];
-
-                // Generamos la propia row!
-                // var row = "<tr><td><a id='btnAddPlaylist' class='addPlay' rel='tooltip' title='Agregar canción al Playlist' href='#'><i class='icon-music'></i></a></td>" +
-                //     "<td>" + nameSong + "<p class='artist-song'>" + artist + "</p></td><td style='Display:none'>" + data[key].uri + "</td></tr>";
+            data.forEach(function (song) {
 
                 var row = "<tr><td><a id='btnAddPlaylist' class='addPlay' rel='tooltip' title='Agregar canción al Playlist' href='#'><i class='icon-music'></i></a></td>" +
-                    "<td>" + nameSong + "<p class='artist-song'><a id='lnkAlbum'>" + artist + "</a></p></td><td style='Display:none'>" + data[key].uri + "</td></tr>";
-
+                    "<td><b>" + song.title + "</b><p class='artist-song'><span id='lnkArtist' class='pointer'>" + song.artist +
+                    "</span> &nbsp;&#8226;&nbsp; <span id='lnkAlbum' class='pointer'>" + song.album + "</span></p></td><td style='Display:none'>"
+                    + song.url + "</td></tr>";
 
                 $(row).insertAfter("#lista tr:last");
             });
-            s.stop();
-            document.getElementById("loading").removeChild(node);
         });
 
         //Habilitamos el tooltip
@@ -392,12 +400,6 @@ function clouseModalWindows() {
     txtGruyaName.val("");
 }
 
-function stringRemoveExtension(item) {
-    var extSplit = item.split('.');
-    var ext = extSplit[extSplit.length - 1];
-    return item.replace('.' + ext, '');
-}
-
 function notifyChangeLocalPlaylist(isEmptyPlaylist) {
     if (!localStorage.gruyaName)
         return;
@@ -418,7 +420,7 @@ function loadPlaylistFromLocalStorage() {
     //Limpiamos playlist
     var ulPlaylsit = $("#ulPlayList");
     var countItems = ulPlaylsit.find("li").size();
-    ulPlaylsit.find("li").slice(2, countItems).remove();
+    ulPlaylsit.find("li").slice(2, countItems);
     myPlaylist.remove();
 
     // Si existe el playlist default lo cargamos
@@ -428,16 +430,13 @@ function loadPlaylistFromLocalStorage() {
         var elem = defaultPlayList[0].songs;
         _.each(elem, function (val) {
 
-            //Obtenemos el nombre del tema
-            var song = decodeURI(val).split("/");
-            var nameSong = song[song.length - 1];
+            var li = "<li class='jp-playlist-current pointer' id=" + val.url + ">" +
+                "<a class='close jp-playlist-item-remove'>x</a><a id='playListItem' class='jp-playlist-item' tabindex='1'>" + val.title + " - " + val.artist + "</a></li>";
 
-            //Agregamos los li
-            var li = "<li class='jp-playlist-current' id=" + val + "><a href='javascript:;' class='close jp-playlist-item-remove'>x</a><a id='playListItem' href=" + val + " class='jp-playlist-item' tabindex='1'>" + stringRemoveExtension(nameSong) + "</a></li>";
             $(li).insertAfter("#ulPlayList li:last");
 
             //Agregamos los temas al playlist!
-            myPlaylist.add({ title: val, artist: "", mp3: val });
+            myPlaylist.add({ title: val.title, artist: val.artist, mp3: val.url });
         });
     }
 }

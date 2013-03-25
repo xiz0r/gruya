@@ -131,7 +131,7 @@ hr.soften {
     background-image: -webkit-linear-gradient(top, #f5f5f5 0%, #eeeeee 100%); /* Chrome 10+,Safari 5.1+ */
     background-image: -ms-linear-gradient(top, #f5f5f5 0%, #eeeeee 100%); /* IE10+ */
     background-image: -o-linear-gradient(top, #f5f5f5 0%, #eeeeee 100%); /* Opera 11.10+ */
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#f5f5f5', endColorstr = '#eeeeee', GradientType = 0); /* IE6-9 */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f5f5f5', endColorstr='#eeeeee', GradientType=0); /* IE6-9 */
     background-image: linear-gradient(top, #f5f5f5 0%, #eeeeee 100%); /* W3C */
     border: 1px solid #e5e5e5;
     -webkit-border-radius: 4px;
@@ -206,7 +206,7 @@ hr.soften {
         -webkit-box-shadow: inset 0 1px 0 #fff, 0 1px 5px rgba(0, 0, 0, .1);
         -moz-box-shadow: inset 0 1px 0 #fff, 0 1px 5px rgba(0, 0, 0, .1);
         box-shadow: inset 0 1px 0 #fff, 0 1px 5px rgba(0, 0, 0, .1);
-        filter: progid:DXImageTransform.Microsoft.gradient(enabled = false); /* IE6-9 */
+        filter: progid:DXImageTransform.Microsoft.gradient(enabled=false); /* IE6-9 */
     }
 
     .subnav-fixed .nav {
@@ -964,5 +964,8 @@ form.well {
 
 .playing-radio {
     opacity: 0.4;
+}
 
+.pointer {
+    cursor: pointer;
 }

@@ -29,6 +29,9 @@ var playlist = (function () {
 
 var GruyaStorage = (function () {
 
+    /**
+     * constructor
+     */
     var storage = function () {
         this.storagePlaylist = [];
 
@@ -61,15 +64,15 @@ var GruyaStorage = (function () {
      *   Agrega un tema al playlist pasado como parametro
      */
     storage.prototype.add = function (playListKey, song) {
-        song = song.trim();
+        //song = song.trim();
         if (song) {
             var pList = getPlayList(playListKey, this.storagePlaylist);
 
             if (pList) {
-                pList.songs.push(song);
+                pList.songs.push(JSON.stringify(song));
             }
             else {
-                var newPlayList = new playlist(playListKey, song);
+                var newPlayList = new playlist(playListKey, JSON.stringify(song));
                 this.storagePlaylist.push(newPlayList);
             }
         }
@@ -105,6 +108,10 @@ var GruyaStorage = (function () {
         var plist = JSON.parse(lstorage);
         _.each(plist, function (val) {
             val.songs = JSON.parse(val.songs);
+
+            val.songs.forEach(function(song, i){
+                val.songs[i] = JSON.parse(song);
+            });
         });
         return plist;
     }
