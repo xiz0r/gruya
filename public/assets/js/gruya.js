@@ -136,11 +136,7 @@ $(document).ready(function () {
         //Obtenemos la uri para el audio selecionado
         var uriSelectedSong = tr.find('td:last').html();
 
-        //Quitamos el punto basura que le deje al playlist
-        uriSelectedSong = uriSelectedSong.substring(1, uriSelectedSong.length);
-
-        //Obtenemos el nombre del tema
-
+        //Obtenemos el nombre y el artista del tema
         var song = tr.find('td:nth-child(2)').find('b').text();
         var artist = tr.find('td:nth-child(2)').find('#lnkArtist').text();
 
@@ -178,7 +174,7 @@ $(document).ready(function () {
 
         //Limpiamos playlist
         var countItems = ulPlaylsit.find("li").size();
-        ulPlaylsit.find("li").slice(2, countItems);
+        ulPlaylsit.find("li").slice(2, countItems).remove();
 
         // Borramos el playlist de jplayer
         myPlaylist.remove();
